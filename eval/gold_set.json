@@ -1,0 +1,480 @@
+[
+ {
+  "question": "يعني إيه فيزياء كلاسيكية؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec1"
+  ],
+  "note": "تعريف أساسي"
+ },
+ {
+  "question": "أحمد زويل عمل إيه بالظبط عشان ياخد نوبل؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec1_2"
+  ],
+  "note": "معلومة جانبية في المقدمة"
+ },
+ {
+  "question": "سرعة الضوء في الفراغ بتساوي كام؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec2"
+  ],
+  "note": "رقم محدد جوه فقرة"
+ },
+ {
+  "question": "ليه الشمس بتطلع ضوء أصفر مش لون تاني؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec2_3"
+  ],
+  "note": "صيغة طالب لسؤال عن قمة منحنى بلانك"
+ },
+ {
+  "question": "إيه هو منحنى بلانك؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec2"
+  ],
+  "note": "المصطلح متعرف في نفس الفقرة"
+ },
+ {
+  "question": "قانون فين بيقول إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec2"
+  ],
+  "note": "Wien's Law"
+ },
+ {
+  "question": "ليه سموها ظاهرة الجسم الأسود مع إن الجسم مش أسود؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec2_8"
+  ],
+  "note": "سؤال استفهامي شائع"
+ },
+ {
+  "question": "الاستشعار عن بعد بيشتغل إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec2_6"
+  ],
+  "note": "تطبيق"
+ },
+ {
+  "question": "إيه هو الكوانتم؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec3"
+  ],
+  "note": "تعريف"
+ },
+ {
+  "question": "ثابت بلانك قيمته كام؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec3"
+  ],
+  "note": "رقم — يختبر إن المعادلة اتصححت صح"
+ },
+ {
+  "question": "طاقة الفوتون بتتحسب إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec3_2"
+  ],
+  "note": "E = hν"
+ },
+ {
+  "question": "شاشة التليفزيون القديمة كانت بتشتغل إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec4",
+   "phy_g12_ch5_sec4_2"
+  ],
+  "note": "متعدد المقاطع — CRT"
+ },
+ {
+  "question": "إيه هو حاجز جهد السطح؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec4"
+  ],
+  "note": "مصطلح"
+ },
+ {
+  "question": "ليه النظرية الكلاسيكية فشلت تفسر التأثير الكهروضوئي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec5",
+   "phy_g12_ch5_sec5_2"
+  ],
+  "note": "سؤال امتحان نموذجي"
+ },
+ {
+  "question": "لو زودت شدة الضوء على المعدن هيخرج إلكترونات أكتر؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec5_2",
+   "phy_g12_ch5_sec5_3"
+  ],
+  "note": "misconception — الإجابة تعتمد على التردد مش الشدة"
+ },
+ {
+  "question": "التردد الحرج معناه إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec5_3",
+   "phy_g12_ch5_sec6_2"
+  ],
+  "note": "νc"
+ },
+ {
+  "question": "أينشتين خد نوبل سنة كام وعن إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec6"
+  ],
+  "note": "1921 — رقم"
+ },
+ {
+  "question": "إيه هي دالة الشغل؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec6_2"
+  ],
+  "note": "Work Function"
+ },
+ {
+  "question": "ظاهرة كومبتون بتثبت إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec7",
+   "phy_g12_ch5_sec7_2"
+  ],
+  "note": "الخاصية الجسيمية"
+ },
+ {
+  "question": "إزاي القنبلة الذرية بتطلع طاقة كبيرة من كتلة صغيرة؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec8_2"
+  ],
+  "note": "E = mc²"
+ },
+ {
+  "question": "الفوتون له كتلة ولا لأ؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec8"
+  ],
+  "note": "misconception شائعة"
+ },
+ {
+  "question": "مين اللي حط فكرة إن الجسيم له طبيعة موجية؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec10"
+  ],
+  "note": "دي برولي 1923"
+ },
+ {
+  "question": "ليه الميكروسكوب الإلكتروني أدق من الضوئي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec11",
+   "phy_g12_ch5_sec11_2"
+  ],
+  "note": "قدرة التحليل"
+ },
+ {
+  "question": "العدسات اللي في الميكروسكوب الإلكتروني نوعها إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec11_2"
+  ],
+  "note": "مغناطيسية مش زجاجية"
+ },
+ {
+  "question": "كلمة ذرة جاية منين؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec1"
+  ],
+  "note": "أصل الكلمة"
+ },
+ {
+  "question": "فروض بور إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec2",
+   "phy_g12_ch6_sec2_2"
+  ],
+  "note": "متعدد المقاطع"
+ },
+ {
+  "question": "ليه الإلكترون مش بيشع طاقة وهو بيلف حوالين النواة؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec2"
+  ],
+  "note": "سؤال مفاهيمي"
+ },
+ {
+  "question": "طاقة المستوى في ذرة الهيدروجين بتتحسب إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec3"
+  ],
+  "note": "En = -13.6/n²"
+ },
+ {
+  "question": "الإلكترون بيفضل قد إيه في مستوى الطاقة العالي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec3"
+  ],
+  "note": "10⁻⁸ ثانية"
+ },
+ {
+  "question": "طيف الهيدروجين فيه كام مجموعة؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec3_2"
+  ],
+  "note": "خمسة"
+ },
+ {
+  "question": "مجموعة بالمر بتقع في أنهي منطقة؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec4"
+  ],
+  "note": "الضوء المنظور — دي كانت مفقودة من الـ OCR"
+ },
+ {
+  "question": "إيه الفرق بين مجموعة ليمان ومجموعة فوند؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec4",
+   "phy_g12_ch6_sec4_2"
+  ],
+  "note": "متعدد المقاطع — الصفحة المسترجعة"
+ },
+ {
+  "question": "المطياف بيتكون من إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec5"
+  ],
+  "note": "ثلاثة أجزاء"
+ },
+ {
+  "question": "إيه الفرق بين الطيف المستمر والطيف الخطي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec6"
+  ],
+  "note": "سؤال مقارنة"
+ },
+ {
+  "question": "خطوط فرونهوفر دي إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec6_2"
+  ],
+  "note": "أثبتت وجود الهليوم على الشمس"
+ },
+ {
+  "question": "ليه اتسمت أشعة إكس بالاسم ده؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec7"
+  ],
+  "note": "رونتجن — الأشعة المجهولة"
+ },
+ {
+  "question": "أنبوبة كولدج بتشتغل إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec8"
+  ],
+  "note": "توليد الأشعة السينية"
+ },
+ {
+  "question": "إيه الفرق بين الطيف المميز والطيف المتصل للأشعة السينية؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec9",
+   "phy_g12_ch6_sec10",
+   "phy_g12_ch6_sec10_3"
+  ],
+  "note": "متعدد المقاطع"
+ },
+ {
+  "question": "أشعة الكابح يعني إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec10_3"
+  ],
+  "note": "Bremsstrahlung"
+ },
+ {
+  "question": "الأشعة السينية بتستخدم في إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch6_sec11",
+   "phy_g12_ch6_sec11_2"
+  ],
+  "note": "تطبيقات"
+ },
+ {
+  "question": "كلمة ليزر اختصار لإيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec1"
+  ],
+  "note": "LASER"
+ },
+ {
+  "question": "مين أول واحد عمل ليزر وسنة كام؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec1"
+  ],
+  "note": "ميمان 1960"
+ },
+ {
+  "question": "إيه الفرق بين الانبعاث التلقائي والمستحث؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec3",
+   "phy_g12_ch7_sec3_2"
+  ],
+  "note": "الجدول اللي اتحول لنص"
+ },
+ {
+  "question": "الذرة المثارة بتفضل مثارة قد إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec2_2"
+  ],
+  "note": "فترة العمر"
+ },
+ {
+  "question": "ليه ضوء الليزر لون واحد بس؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec4"
+  ],
+  "note": "النقاء الطيفي — صيغة طالب"
+ },
+ {
+  "question": "ليه شعاع الليزر مبيتفرشش زي ضوء الكشاف؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec5",
+   "phy_g12_ch7_sec6"
+  ],
+  "note": "التوازي والترابط"
+ },
+ {
+  "question": "ضوء الليزر بيخضع لقانون التربيع العكسي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec7"
+  ],
+  "note": "misconception — الإجابة لأ"
+ },
+ {
+  "question": "إيه هو الإسكان المعكوس؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec9"
+  ],
+  "note": "Population Inversion"
+ },
+ {
+  "question": "أي جهاز ليزر لازم يكون فيه إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec8"
+  ],
+  "note": "ثلاثة عناصر"
+ },
+ {
+  "question": "ليه بيحطوا مرآة شبه منفذة في الليزر؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec8_4",
+   "phy_g12_ch7_sec9_4"
+  ],
+  "note": "متعدد المقاطع"
+ },
+ {
+  "question": "نسبة الهليوم للنيون في الليزر كام؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec10"
+  ],
+  "note": "10:1"
+ },
+ {
+  "question": "المستوى شبه المستقر معناه إيه؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec10_3",
+   "phy_g12_ch7_sec9_3"
+  ],
+  "note": "Metastable State"
+ },
+ {
+  "question": "إيه هو الهولوجرام؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec12_4"
+  ],
+  "note": "تعريف"
+ },
+ {
+  "question": "ليه الصورة العادية بتبقى مسطحة والهولوجرام مجسم؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec12_3",
+   "phy_g12_ch7_sec12_2"
+  ],
+  "note": "الشدة مقابل فرق الطور"
+ },
+ {
+  "question": "الليزر بيعالج انفصال الشبكية إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec13"
+  ],
+  "note": "تطبيق طبي"
+ },
+ {
+  "question": "طابعة الليزر بتشتغل إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec14"
+  ],
+  "note": "تطبيق"
+ },
+ {
+  "question": "الطول الموجي للفوتون بيتحسب إزاي؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec9"
+  ],
+  "note": "λ = h/PL"
+ },
+ {
+  "question": "ليه أشعة إكس بتعدي من الجسم والضوء العادي لأ؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch5_sec9_2"
+  ],
+  "note": "مقارنة الطول الموجي بالمسافات البينية للذرات"
+ },
+ {
+  "question": "الليزر بيستخدم في إيه في المجال العسكري؟",
+  "expected_chunk_ids": [
+   "phy_g12_ch7_sec11",
+   "phy_g12_ch7_sec14"
+  ],
+  "note": "حرب النجوم + القنابل الذكية"
+ },
+ {
+  "question": "قانون أوم بيقول إيه؟",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "فيزياء تالتة ثانوي بس من الوحدة الأولى — مش في الفصول المرقمنة. ده أهم اختبار للـ guardrail"
+ },
+ {
+  "question": "إزاي أحسب المقاومة المكافئة لمقاومتين على التوازي؟",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "الوحدة الأولى — برة المحتوى"
+ },
+ {
+  "question": "إيه هو الحث الكهرومغناطيسي؟",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "الفصل الثالث — برة المحتوى"
+ },
+ {
+  "question": "إيه الفرق بين الموصل وشبه الموصل؟",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "الفصل الثامن — نفس الوحدة بس مش مرقمن"
+ },
+ {
+  "question": "الترانزستور بيشتغل إزاي؟",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "الفصل الثامن — برة المحتوى"
+ },
+ {
+  "question": "مين اللي بنى السد العالي؟",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "برة المادة تمامًا"
+ },
+ {
+  "question": "اكتبلي موضوع تعبير عن الصداقة",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "طلب مش سؤال منهج — يختبر إن الأداة مش شات بوت عام"
+ },
+ {
+  "question": "امتحان الفيزياء هيكون إمتى؟",
+  "expected_chunk_ids": [],
+  "expect_refusal": true,
+  "note": "سؤال إداري — لازم يرفض"
+ }
+]
