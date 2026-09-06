@@ -23,7 +23,6 @@
 
   --radius: 14px;
   --radius-sm: 9px;
-  --gap: 16px;
   --col: 760px;
 
   --font: "Segoe UI", "Noto Sans Arabic", "Cairo", "Dubai", system-ui,
@@ -51,8 +50,7 @@
 
 * { box-sizing: border-box; }
 
-/* A `display` declaration outranks the user-agent rule for [hidden], so any
-   element styled as flex or grid stays visible when hidden is set. Settle it
+/* A `display` declaration outranks the user-agent rule for [hidden]. Settled
    once here rather than per component. */
 [hidden] { display: none !important; }
 
@@ -116,7 +114,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .top .spacer { flex: 1; }
 
-/* logo mark - same geometry as icons/, kept in sync deliberately */
+/* logo mark - same geometry as icons/ */
 .mark {
   display: block;
   flex: none;
@@ -124,9 +122,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   height: 30px;
   overflow: visible;
 }
-/* The three brand tones are all near-black, so at small sizes the sheets read
-   as a single shape. A hairline in the page colour separates them without
-   introducing a colour outside the palette. */
+/* The three brand tones are all near-black and merge at small sizes. A
+   hairline in the page colour separates them. */
 .mark path { stroke: var(--paper); stroke-width: 2.2; paint-order: stroke fill; }
 .mark .s1 { fill: var(--sheet-1); }
 .mark .s2 { fill: var(--sheet-2); }
@@ -192,8 +189,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 
 /* empty state */
-/* Landing centres the opening panel; chat aligns the thread to the top and
-   lets it grow downwards. Only the column changes - the composer is fixed. */
+/* Landing centres the opening panel; chat aligns the thread to the top. Only
+   the column changes - the composer is fixed. */
 .app[data-mode="landing"] .col {
   min-height: 100%;
   display: flex;
@@ -345,7 +342,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font-weight: 700;
 }
 
-/* out-of-curriculum notice - presented as information, not an error */
+/* out-of-curriculum notice */
 .notfound {
   display: flex;
   gap: 12px;
@@ -451,14 +448,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* ---------------------------------------------------------------- motion */
 @media (prefers-reduced-motion: reduce) {
   /* Shortening the duration is not enough: an animation with `both` fill and a
-     delay holds its FROM state for the whole delay, so staggered content stays
-     invisible. Remove the animations outright and let the natural state show. */
+     delay holds its start state throughout the delay, leaving staggered content
+     invisible. Remove the animations entirely. */
   *, *::before, *::after {
     animation: none !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  /* the shimmer paints its text with a moving gradient - give the text back */
+  /* the shimmer paints text with a moving gradient; restore plain text */
   .rec-dot { animation: none !important; }
   .thinking span {
     background: none;
@@ -474,7 +471,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   body { font-size: 15px; }
 }
 
-/* shown only when the app was opened as file:// */
+/* shown when the app is opened over file:// */
 .cmd {
   margin: 10px 0 8px;
   padding: 10px 12px;
@@ -505,7 +502,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 @keyframes caret { 50% { opacity: 0; } }
 
-/* citations and timing appear once the answer has finished rendering */
+/* citations and timing appear after the answer finishes rendering */
 .reveal { animation: reveal 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
 @keyframes reveal {
   from { opacity: 0; transform: translateY(9px); }
@@ -836,7 +833,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .action:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .action.done { border-color: var(--accent); color: var(--accent-ink); }
 
-/* jump to the newest message */
+/* jump to newest message */
 .to-bottom {
   position: absolute;
   inset-inline-end: clamp(14px, 4vw, 28px);
@@ -856,7 +853,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .to-bottom svg { width: 17px; height: 17px; }
 .scroll { position: relative; }
 
-/* the header lifts once the thread scrolls under it */
+/* header elevation once the thread scrolls under it */
 .app[data-scrolled="true"] .top { box-shadow: 0 1px 12px rgba(16, 20, 26, 0.07); }
 :root[data-theme="dark"] .app[data-scrolled="true"] .top { box-shadow: 0 1px 14px rgba(0, 0, 0, 0.6); }
 
@@ -1009,39 +1006,23 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 
 /* ---- sky ---------------------------------------------------------------- */
-/* Points of light rather than drawn stars: small, soft, and blinking on their
-   own rhythms so the sky never pulses as one. */
-/* A faint point that keeps a small cross-flare when it catches the light. The
-   flare is what makes it read as a glint rather than a dot. */
-.scene .glint { fill: color-mix(in srgb, var(--accent-ink) 80%, transparent); }
-:root[data-theme="dark"] .scene .glint { fill: #f4f9ff; }
-
-.scene .glint .dot {
-  opacity: 0.22;
-  animation: glintDot var(--dur, 2s) ease-in-out var(--d, 0s) infinite;
-}
-:root[data-theme="dark"] .scene .glint .dot { opacity: 0.3; }
-
-.scene .glint .flare {
-  opacity: 0;
+/* Four-point glints, each on its own rhythm. Kept faint between flashes
+   rather than switched off. */
+.scene .glint {
+  fill: var(--accent-ink);
+  opacity: 0.25;
   transform-box: fill-box;
   transform-origin: center;
-  transform: scale(0.2);
-  animation: glintFlare var(--dur, 2s) ease-out var(--d, 0s) infinite;
+  animation: glint var(--dur, 3s) ease-in-out var(--d, 0s) infinite;
 }
+:root[data-theme="dark"] .scene .glint { fill: #f4f9ff; opacity: 0.3; }
 
-@keyframes glintDot {
-  0%, 60%, 100% { opacity: 0.16; }
-  68%           { opacity: 1; }
-  76%           { opacity: 0.24; }
-  84%           { opacity: 0.75; }
-}
-@keyframes glintFlare {
-  0%, 56%, 100% { opacity: 0;   transform: scale(0.15); }
-  66%           { opacity: 1;   transform: scale(1.15); }
-  74%           { opacity: 0.1; transform: scale(0.4); }
-  82%           { opacity: 0.7; transform: scale(0.95); }
-  90%           { opacity: 0;   transform: scale(0.3); }
+@keyframes glint {
+  0%   { opacity: 0.2;  transform: scale(0.6) rotate(0deg); }
+  12%  { opacity: 1;    transform: scale(1.25) rotate(0deg); }
+  24%  { opacity: 0.35; transform: scale(0.85) rotate(0deg); }
+  34%  { opacity: 0.8;  transform: scale(1.1) rotate(0deg); }
+  58%, 100% { opacity: 0.2; transform: scale(0.6) rotate(0deg); }
 }
 
 .scene .moon { fill: color-mix(in srgb, var(--accent) 60%, transparent); opacity: 0.45; }
@@ -1072,8 +1053,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 
 /* ---- pyramids ----------------------------------------------------------- */
-/* Two faces per pyramid, one catching the moon and one in shadow. That single
-   difference is what stops them reading as flat triangles. */
+/* Two faces per pyramid, one lit and one in shadow. */
 .scene .face { stroke: none; }
 .scene .face.lit { fill: color-mix(in srgb, var(--accent) 34%, transparent); }
 .scene .face.dim { fill: color-mix(in srgb, var(--accent-ink) 20%, transparent); }
@@ -1096,7 +1076,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 :root[data-theme="dark"] .scene .edge { stroke: color-mix(in srgb, var(--accent) 62%, transparent); }
 :root[data-theme="dark"] .scene .ridge { stroke: color-mix(in srgb, var(--accent) 30%, transparent); }
 
-/* the outline traces itself, each pyramid on its own offset */
+/* outlines trace on their own offsets */
 .scene .edge  { stroke-dasharray: 520; animation: trace 26s linear infinite; }
 .scene .ridge { stroke-dasharray: 200; animation: trace 26s linear infinite; }
 .scene .pyr .edge, .scene .pyr .ridge { animation-delay: calc(var(--n) * -8.6s); }
@@ -1131,10 +1111,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .scene .trunk { stroke-dasharray: 70; animation: trace 22s linear infinite 2.4s; }
 
-/* The outer group drifts; the inner one keeps the bird's own placement, so the
-   SVG transform attribute and the CSS animation do not fight over it. */
+/* The outer group drifts; the inner keeps the bird's placement, so the SVG
+   transform attribute and the CSS animation do not conflict. */
 .scene .flock {
-  animation: drift 17s linear var(--bd, 0s) infinite;
+  animation: drift 21s linear var(--bd, 0s) infinite;
 }
 @keyframes drift {
   0%   { opacity: 0; transform: translateX(-90px); }
@@ -1146,7 +1126,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .scene .wing {
   transform-box: fill-box;
   transform-origin: 0% 100%;
-  animation: flap 0.78s ease-in-out var(--fd, 0s) infinite;
+  animation: flap 0.92s ease-in-out var(--fd, 0s) infinite;
 }
 .scene .wing.right { transform-origin: 100% 100%; }
 @keyframes flap {
@@ -1162,7 +1142,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   stroke-linecap: round;
   color: var(--accent-ink);
   stroke-dasharray: 320 1200;
-  animation: runLight 19s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  animation: runLight 22s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 :root[data-theme="dark"] .scene .sweep { color: #cfe3f4; stroke-width: 2.6; }
 @keyframes runLight {

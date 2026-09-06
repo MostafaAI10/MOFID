@@ -1,21 +1,17 @@
 /*
- * Mofid - the one place the app talks to the backend.
+ * Mofid - the single point of contact between the app and the backend.
  *
- * Right now MODE is "mock": retrieval runs in the browser over the same
- * curriculum JSON that ships with the app, so the whole UI (answers, citations,
- * the "not in your curriculum" refusal) is exercisable before the API exists.
- *
- * WHEN ENDPOINTS LAND: set MODE to "live" below. Nothing else in the
- * app needs to change - app.js only ever calls MofidAPI.ask() and .health().
- * The request and response shapes are written out in API_CONTRACT.md.
+ * MODE "mock" runs retrieval in the browser over the curriculum JSON that ships
+ * with the app, so the interface can be exercised before the API exists.
+ * MODE "live" calls the backend instead; nothing else in the app changes.
+ * Request and response shapes: API_CONTRACT.md.
  */
 const MofidAPI = (() => {
   const CONFIG = {
     // Set to "live" once the backend is available.
     MODE: "mock", // "mock" | "live"
-    // Empty string = same origin, which is what happens when FastAPI serves
-    // these files. Set to e.g. "http://192.168.4.1:8000" only if the app is
-    // served from somewhere other than the API.
+    // Empty string means same origin. Set an absolute URL only when the app
+    // is served from somewhere other than the API.
     BASE_URL: "",
     TIMEOUT_MS: 60000, // a quantized model on modest hardware can be slow
   };
@@ -55,11 +51,10 @@ const MofidAPI = (() => {
     "means called work works working happen happens does not no yes please" +
     "").split(/\s+/));
 
-  /* Light Arabic stemmer. Arabic glues articles and pronouns onto words, so
-     "الإشعاع" / "إشعاعا" / "بالإشعاع" are three tokens that should match each
-     other. Stripping the common clitics collapses them. Deliberately shallow -
-     this is not root extraction, just enough to stop losing obvious matches.
-     Measured on eval/gold_set.json it lifts retrieval from 51% to 69%. */
+  /* Light Arabic stemmer. Arabic attaches articles and pronouns to words, so
+     "الإشعاع" / "إشعاعا" / "بالإشعاع" are distinct tokens for the same term.
+     Stripping the common clitics collapses them. This is not root extraction;
+     measured on eval/gold_set.json it raises retrieval from 51% to 69%. */
   const PREFIXES = ["وال", "بال", "كال", "فال", "لل", "ال", "و", "ف", "ب", "ك", "ل"];
   const SUFFIXES = ["اتها", "اتهم", "ينها", "هما", "تها", "تهم", "هم", "هن", "ها",
     "ية", "ات", "ون", "ين", "ان", "تي", "ي", "ه", "ا"];
@@ -75,10 +70,9 @@ const MofidAPI = (() => {
     return word;
   }
 
-  /* Concepts the syllabus teaches but only ever writes in Arabic, plus the
-     English spellings a student is likely to reach for. Without this, asking
-     "what is wavelength" is treated as off-syllabus even though the whole of
-     chapter 5 is about it. Only terms these three chapters actually cover. */
+  /* English spellings for concepts the textbook writes only in Arabic. Without
+     these, "what is wavelength" is treated as off-syllabus. Extend this map when
+     new chapters are added. */
   const EN_TO_AR = {
     modern: "الحديثة", classical: "الكلاسيكية", atomic: "الذرية",
     nuclear: "النووية", wavelength: "الطول الموجي", hydrogen: "الهيدروجين",
@@ -114,9 +108,9 @@ const MofidAPI = (() => {
   let CHUNKS = null;
   let INDEX = null;
 
-  /* The raw list is enough to describe what the box holds. Tokenising it into
-     an inverted index costs real time on a low-end tablet, and nothing on the
-     landing screen needs it, so that work waits until a question is asked. */
+  /* The raw list describes what the device holds. Building the inverted index
+     is expensive on low-end hardware and nothing on the landing screen needs
+     it, so that work is deferred until the first question. */
   function loadChunks() {
     if (!CHUNKS) CHUNKS = fetch("data/curriculum.json").then((r) => r.json());
     return CHUNKS;
@@ -128,7 +122,7 @@ const MofidAPI = (() => {
     const df = new Map();
     const docs = chunks.map((c) => {
       const bag = new Map();
-      // The heading is worth more than body prose for matching a question
+      // headings weigh more than body prose when matching a question
       const weighted = `${c.section} ${c.section} ${c.chapter} ${c.text}`;
       for (const t of tokens(weighted)) bag.set(t, (bag.get(t) || 0) + 1);
       for (const t of bag.keys()) df.set(t, (df.get(t) || 0) + 1);
@@ -140,22 +134,19 @@ const MofidAPI = (() => {
 
   const LATIN_TOKEN = /^[a-z][a-z0-9'-]*$/;
 
-  /* Ordinary English words are not "the thing being asked about". Only a term
-     that reads like a name - a law, a scientist, a device - is evidence the
-     question is off-syllabus. Without this, "what is modern physics" is refused
-     because the book never writes the word "modern". */
+  /* Ordinary English words are not the subject of a question. Excluding them
+     prevents "what is modern physics" being refused because the textbook never
+     writes the word "modern". */
   const COMMON_EN = new Set(("modern classical general basic simple new old big small " +
     "difference between about first second third main important different same " +
     "explain define describe give tell mean means called name type kind part " +
     "please can you your there their some any more most very much many").split(" "));
 
-  /* A Latin-script word the textbook has never once used is almost always the
-     actual subject of the question - a law, a scientist, a device the syllabus
-     does not cover ("Vin", "Ohm"). Answering anyway means grabbing whatever the
-     remaining generic word ("قانون") happens to match, which is exactly the
-     confident-but-wrong answer this app must never give. Arabic filler words
-     are deliberately not treated this way; they are absent for a different
-     reason (they are colloquial, not technical). */
+  /* A Latin-script term absent from the whole corpus is usually the subject of
+     an off-syllabus question ("Vin", "Ohm"). Answering anyway would match on the
+     remaining generic word and produce a confident but wrong result. Arabic
+     tokens are excluded from this rule: they are absent because they are
+     colloquial, not because the topic is uncovered. */
   function namesSomethingUnknown(qt, df) {
     return qt.some((t) =>
       LATIN_TOKEN.test(t) && t.length > 2 && !COMMON_EN.has(t) && !df.has(t));
@@ -191,11 +182,10 @@ const MofidAPI = (() => {
     return scored.slice(0, k).filter((s) => s.score > 0);
   }
 
-  /* The refusal gate. COVERAGE is what actually separates a curriculum question
-     from an off-syllabus one: an electricity question still hits words like
-     "electron" and "field", so it can score well while matching only a small
-     part of what was asked. Both thresholds were swept against the 67-question
-     gold set - see webapp/README.md for the numbers they produce. */
+  /* Refusal thresholds. Coverage separates a curriculum question from an
+     off-syllabus one: an electricity question still matches "electron" and
+     "field" and can score well while covering little of what was asked. Both
+     values were swept against the 67-question gold set. */
   const RELEVANCE_FLOOR = 2.0;
   const COVERAGE_FLOOR = 0.35;
   const UNKNOWN_TERM_COVERAGE = 0.6; // stricter when the question names something unknown
@@ -248,7 +238,7 @@ const MofidAPI = (() => {
       });
       if (!res.ok) throw new Error(`server returned ${res.status}`);
       const data = await res.json();
-      // Tolerate missing fields so a schema change degrades rather than blanks
+      // tolerate missing fields so a schema change degrades gracefully
       return {
         answer: data.answer ?? "",
         in_curriculum: data.in_curriculum ?? true,
@@ -279,21 +269,18 @@ const MofidAPI = (() => {
       if (!res.ok) throw new Error(`health check failed (${res.status})`);
       return { ...(await res.json()), mode: "live" };
     },
-    /* Voice input.
-       Deliberately NOT the browser SpeechRecognition API: that uploads audio to
-       a cloud service, which would break the offline guarantee the product is
-       built on. Audio is posted to the local box instead, where an on-device
-       model transcribes it. Until that endpoint exists, mock mode exercises the
-       whole recording path and returns placeholder text. */
+    /* Voice input. The browser SpeechRecognition API is not used: it uploads
+       audio to a cloud service, which would break the offline guarantee. Audio
+       is posted to the local server for on-device transcription. In mock mode
+       the recording path runs but the text returned is a placeholder. */
     get canTranscribe() {
       return typeof MediaRecorder !== "undefined"
         && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
     },
 
-    /* True while no transcription backend exists. The caller must say so in the
-       interface: mock mode returns a sample question rather than anything the
-       microphone heard, and text that looks plausible but is not what was said
-       is worse than no text at all if it arrives unannounced. */
+    /* True while no transcription backend exists. The interface must surface
+       this: mock mode returns a sample question, not what the microphone
+       captured. */
     get transcribeIsMock() {
       return CONFIG.MODE !== "live";
     },
@@ -325,8 +312,7 @@ const MofidAPI = (() => {
         if (chunk.subject) subjects.add(chunk.subject);
         if (chunk.grade) grades.add(chunk.grade);
       }
-      // Reported as sets: the box is not assumed to hold one subject or one
-      // grade, so adding a second curriculum needs no change here or upstream.
+      // Returned as sets so a second curriculum needs no change here.
       return {
         subjects: [...subjects],
         grades: [...grades],
@@ -335,8 +321,7 @@ const MofidAPI = (() => {
       };
     },
 
-    /* The distinct subject+grade pairs the box holds. One pair means there is
-       nothing to choose and the interface should not ask. */
+    /* Distinct subject and grade pairs present in the content. */
     async courses() {
       const chunks = await loadChunks();
       const map = new Map();

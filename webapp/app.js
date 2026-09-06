@@ -54,7 +54,6 @@
       askGrade: "انت في أنهي سنة؟",
       askSubject: "عايز تذاكر إيه النهاردة؟",
       readyToAsk: "اسأل عن أي حاجة في منهجك",
-      lessonsLabel: (n) => (n === 1 ? "درس واحد" : n === 2 ? "درسين" : `${n} دروس`),
       recording: "بتسجّل…",
       recordingMock: "بتسجّل… (تجريبي)",
       sttMockNotice: "تحويل الصوت لنص لسه مش متوصّل بالسيرفر. النص اللي ظهر ده عيّنة من المنهج، مش كلامك. لما endpoint ‏/transcribe يجهز هيتحوّل كلامك فعلًا.",
@@ -103,7 +102,6 @@
       askGrade: "Which year are you in?",
       askSubject: "What would you like to study today?",
       readyToAsk: "Ask anything from your curriculum",
-      lessonsLabel: (n) => (n === 1 ? "1 lesson" : `${n} lessons`),
       recording: "Recording…",
       recordingMock: "Recording… (placeholder mode)",
       sttMockNotice: "Speech-to-text is not connected to the server yet. The text above is a sample question from the curriculum, not what you said. It will transcribe for real once the /transcribe endpoint is available.",
@@ -127,10 +125,8 @@
     return n;
   }
 
-  /* The curriculum is Arabic whatever the interface language is, so any node
-     holding book text decides its own direction rather than inheriting the
-     page's. Without this, Arabic paragraphs render LTR in the English UI and
-     the punctuation lands on the wrong side. */
+  /* Textbook content is Arabic regardless of interface language, so nodes
+     holding it resolve their own direction instead of inheriting the page's. */
   function autoDir(n) {
     n.setAttribute("dir", "auto");
     return n;
@@ -139,8 +135,7 @@
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* Reveals the answer progressively. The response has already arrived in
-     full, so this is presentation rather than real streaming; token streaming
-     would require a streamed response from the backend. */
+     full; true token streaming would require a streamed backend response. */
   function revealText(target, text) {
     if (reduceMotion) {
       target.textContent = text;
@@ -152,7 +147,7 @@
     target.classList.add("typing");
     return new Promise((resolve) => {
       const step = () => {
-        // a few words per frame, so long answers do not crawl
+        // several words per frame keeps long answers readable
         const budget = Math.max(2, Math.round(words.length / 90));
         for (let n = 0; n < budget && i < words.length; n++, i++) {
           target.append(words[i]);
@@ -175,7 +170,7 @@
   }
 
   function toBottom(force) {
-    if (!force && !nearBottom()) return; // never yank the page from under a reader
+    if (!force && !nearBottom()) return; // do not scroll a reader away from their place
     requestAnimationFrame(() => { el.scroll.scrollTop = el.scroll.scrollHeight; });
   }
 
@@ -220,7 +215,7 @@
     return msg;
   }
 
-  /* Jump from an inline marker to the matching source card and open it. */
+  /* Open the source card matching an inline marker. */
   function openCitation(msg, index) {
     const card = msg.querySelectorAll(".cite")[index];
     if (!card) return;
@@ -288,11 +283,9 @@
         seen.add(key);
         return true;
       });
-      /* Attach a numbered marker to the paragraph each source produced, rather
-         than leaving the sources stranded at the bottom of the answer. Only
-         done when the answer splits into exactly as many paragraphs as there
-         are sources, which is when the mapping is unambiguous; otherwise the
-         cards below carry the citation on their own. */
+      /* Number each paragraph with the source it came from. Applied only when
+         the paragraph count matches the source count, so the mapping is
+         unambiguous; otherwise the cards below carry the citation alone. */
       const paras = res.answer.split(/\n{2,}/).filter((x) => x.trim());
       if (cites.length && paras.length === cites.length && !restoring) {
         bodyEl.replaceChildren();
@@ -333,7 +326,7 @@
             copy.firstChild.textContent = t().copy;
             copy.classList.remove("done");
           }, 1600);
-        } catch { /* clipboard blocked - nothing useful to say about it */ }
+        } catch { /* clipboard unavailable */ }
       });
       row.append(copy);
       msg.append(row);
@@ -369,8 +362,7 @@
   }
 
   // ------------------------------------------------------------------ send
-  /* Switches from the landing layout to the conversation layout. The opening
-     panel is animated out and the thread takes the full column; the composer
+  /* Switches from the landing layout to the conversation layout. The composer
      keeps its position so focus is never displaced. */
   function enterChatMode() {
     pickerAnswered = true;
@@ -428,15 +420,8 @@
 
   const SCOPE_KEY = "mofid.scope";
 
-  function courseLabel(c) {
-    const s = t();
-    return `${c.subject} · ${s.grades[c.grade] || c.grade}`;
-  }
-
-  /* A two-step choice, both steps read from the content: pick a year, then a
-     subject taught in that year. With one option a step still renders - the
-     card states what the box holds - but nothing is forced: the composer stays
-     live and an unanswered step just means the search is not narrowed. */
+  /* A two-step choice read from the content: a year, then a subject taught in
+     it. Neither is required; an unanswered step leaves the search unnarrowed. */
   let step = "grade";
 
   const SUBJECT_ICONS = {
@@ -493,9 +478,8 @@
     return b;
   }
 
-  /* True while the landing is still asking for a year or a subject. Nothing
-     that presumes an answer - suggested questions, the header scope - may be
-     on screen during this, or the interface contradicts its own question. */
+  /* True while the landing is still asking for a year or subject. Anything
+     that presumes an answer stays hidden until one is given. */
   function isPicking() {
     return el.app.dataset.mode !== "chat" && !pickerAnswered && courses.length > 0;
   }
@@ -515,7 +499,7 @@
     }
     el.context.disabled = false;
     if (pickerAnswered) {
-      // nothing to ask: back to the normal welcome
+      // nothing left to ask
       el.picker.hidden = true;
       el.pickBack.hidden = true;
       el.hero.querySelector("h2").textContent = greeting();
@@ -607,7 +591,7 @@
       } else {
         sessionStorage.removeItem(SCOPE_KEY);
       }
-    } catch { /* storage unavailable - the choice will not survive a reload */ }
+    } catch { /* storage unavailable */ }
   }
 
   function buildCoursePicker() {
@@ -657,7 +641,7 @@
 
   // ---------------------------------------------------------------- status
   function paintStatus() {
-    // The device has no uplink by design, so offline is the expected state.
+    // the device has no uplink by design, so offline is the expected state
     const offline = !navigator.onLine;
     el.status.dataset.state = offline ? "offline" : "online";
     el.statusText.textContent = offline ? t().offline : t().online;
@@ -719,9 +703,8 @@
     el.send.disabled = busy || !el.input.value.trim();
   }
 
-  /* Opened as file:// - fetch() is blocked against the local filesystem, so
-     every request fails with a network-looking error that sends people hunting
-     for the wrong problem. Say what is actually wrong instead. */
+  /* Over file:// the browser blocks fetch against the local filesystem, and
+     the resulting failures look like network errors. State the real cause. */
   function showFileProtocolNotice() {
     el.hero.hidden = true;
     const msg = node("div", "msg bot");
@@ -744,20 +727,16 @@
   }
 
   // ---------------------------------------------------------------- history
-  /* The conversation is kept in sessionStorage, not localStorage: a reload or an
-     accidental back-navigation should not lose the thread, but closing the tab
-     must clear it. These are shared classroom devices, and the next student has
-     no business seeing the previous one's questions. Nothing leaves the device
-     and nothing is tied to a person - there are no accounts by design. */
-  let presetGrade = null;
+  /* Kept in sessionStorage rather than localStorage: a reload should not lose
+     the thread, but closing the tab must clear it. These are shared classroom
+     devices. Nothing leaves the device and nothing is tied to a person. */
   let scopeMeta = null;
   let courses = [];
   // Either field may be null, which means "do not narrow on this one".
   let scope = { subject: null, grade: null };
-  /* The picker is a first-run question, not something to repeat. Once the
-     student has answered it - or simply started asking without answering - a
-     new conversation keeps the same scope. Changing it is done deliberately,
-     through the chip in the header. */
+  /* The picker is a first-run question. Once answered - or bypassed by asking
+     directly - a new conversation keeps the same scope. It is reopened from the
+     header chip. */
   let pickerAnswered = false;
   let mockVoiceNoticeShown = false;
   const HISTORY_KEY = "mofid.thread";
@@ -766,12 +745,12 @@
   function saveHistory() {
     try {
       sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(-40)));
-    } catch { /* private mode or a full quota - the thread stays on screen */ }
+    } catch { /* storage unavailable */ }
   }
 
   function clearHistory() {
     history = [];
-    try { sessionStorage.removeItem(HISTORY_KEY); } catch { /* nothing to do */ }
+    try { sessionStorage.removeItem(HISTORY_KEY); } catch { /* storage unavailable */ }
   }
 
   async function restoreHistory() {
@@ -792,8 +771,7 @@
     clearHistory();
     el.thread.replaceChildren();
     el.newChat.hidden = true;
-    // the thread was scrolled to its end; without this the landing opens
-    // somewhere below the fold and looks empty
+    // the thread was scrolled to its end; reset so the landing opens in view
     el.scroll.scrollTop = 0;
     el.toBottom.hidden = true;
     el.app.dataset.scrolled = "false";
@@ -828,8 +806,8 @@
     el.app.dataset.recording = on ? "true" : "false";
   }
 
-  /* Draws the live input level. It is the only signal that the microphone is
-     actually picking something up, which matters on shared classroom devices. */
+  /* Live input level - the only signal that the microphone is picking up
+     sound, which matters on shared devices. */
   function meter() {
     const bars = el.recLevel.children;
     const data = new Uint8Array(rec.analyser.frequencyBinCount);
@@ -872,7 +850,7 @@
       rec.analyser.fftSize = 128;
       rec.audioCtx.createMediaStreamSource(stream).connect(rec.analyser);
       meter();
-    } catch { /* the meter is decoration; recording matters more */ }
+    } catch { /* level meter unavailable; recording continues */ }
 
     const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"]
       .find((m) => MediaRecorder.isTypeSupported(m));
@@ -917,8 +895,7 @@
           mockVoiceNoticeShown = true;
           addNotice(t().sttMockNotice);
         }
-        // Land it in the box rather than sending: transcription makes mistakes
-        // and the student should get to fix them first.
+        // land it in the input rather than sending, so it can be corrected
         el.input.value = text;
         autogrow();
         syncSend();
@@ -937,7 +914,7 @@
   async function loadChips() {
     try {
       const all = await MofidAPI.suggestions(lang);
-      // A different sample on each load
+      // rotate the sample on each load
       const picks = all.sort(() => Math.random() - 0.5).slice(0, 4);
       el.chips.replaceChildren();
       picks.forEach((q, i) => {
@@ -947,16 +924,15 @@
         b.addEventListener("click", () => ask(q));
         el.chips.append(b);
       });
-    } catch { /* suggestions are a nicety, never a blocker */ }
+    } catch { /* suggestions are optional */ }
   }
 
   function init() {
-    /* URL overrides, for testing and for the demo runbook:
-       ?theme=light|dark   ?lang=ar|en   ?grade=<n>   ?q=<question> (asks it on load) */
+    /* URL overrides for demos:
+       ?theme=light|dark  ?lang=ar|en  ?q=<question> */
     const params = new URLSearchParams(location.search);
 
     if (["ar", "en"].includes(params.get("lang"))) lang = params.get("lang");
-    presetGrade = params.get("grade");
 
     let saved = params.get("theme") || localStorage.getItem("mofid.theme");
     if (!["light", "dark"].includes(saved)) {
@@ -1008,7 +984,7 @@
       applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
     });
 
-    // Clicking the mark replays the opening animation.
+    // clicking the mark replays the opening animation
     const headerMark = document.querySelector(".brand .mark");
     if (headerMark && !reduceMotion) {
       headerMark.addEventListener("click", () => {
@@ -1032,9 +1008,6 @@
       .then(([m, list]) => {
         scopeMeta = m;
         courses = list;
-        if (presetGrade && list.some((c) => c.grade === presetGrade)) {
-          scope.grade = presetGrade;
-        }
         try {
           const saved = JSON.parse(sessionStorage.getItem(SCOPE_KEY) || "null");
           if (saved) {
@@ -1042,7 +1015,7 @@
             if (list.some((c) => c.grade === saved.grade)) scope.grade = saved.grade;
             if (scope.subject) pickerAnswered = true;
           }
-        } catch { /* nothing stored */ }
+        } catch { /* no stored scope */ }
         buildCoursePicker();
         paintContext();
       })
