@@ -1,0 +1,630 @@
+/* Mofid - student app
+   Palette is the brand sheet: #000000 #222121 #424040 #ffffff #b8cee1.
+   Neutrals between those are derived; no colour outside that family. */
+
+:root {
+  color-scheme: light;
+  --paper: #ffffff;
+  --surface: #f6f7f9;
+  --surface-2: #eceef1;
+  --line: #d8dce1;
+  --ink: #000000;
+  --ink-2: #222121;
+  --ink-3: #3a3838;
+  --muted: #575c63;          /* 7.0:1 on paper - readable, not decorative */
+  --accent: #b8cee1;
+  --accent-ink: #2b4a61;     /* darkened accent, for text that must stay legible */
+  --accent-soft: #e8f0f7;
+  --shadow: 0 1px 2px rgba(16, 20, 26, 0.05), 0 6px 18px rgba(16, 20, 26, 0.05);
+
+  --sheet-1: #000000;
+  --sheet-2: #222121;
+  --sheet-3: #424040;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --gap: 16px;
+  --col: 760px;
+
+  --font: "Segoe UI", "Noto Sans Arabic", "Cairo", "Dubai", system-ui,
+    -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #000000;
+  --surface: #151515;
+  --surface-2: #222121;
+  --line: #2f2e2e;
+  --ink: #ffffff;
+  --ink-2: #ededed;
+  --ink-3: #c9c9c9;
+  --muted: #a4a4a4;
+  --accent: #b8cee1;
+  --accent-ink: #b8cee1;
+  --accent-soft: #16232e;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --sheet-1: #ffffff;
+  --sheet-2: #d5d5d5;
+  --sheet-3: #a8a8a8;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink-2);
+  font-family: var(--font);
+  font-size: 15.5px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* ------------------------------------------------------------------ shell */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100dvh;  /* dvh tracks the mobile URL bar; 100% is the fallback */
+}
+
+/* ----------------------------------------------------------------- header */
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px clamp(12px, 4vw, 28px);
+  border-block-end: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 5;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  transition: font-size 0.35s var(--ease), opacity 0.35s;
+}
+.app[data-mode="chat"] .brand h1 { font-size: 15px; opacity: 0.72; }
+.app[data-mode="chat"] .brand .mark { width: 16px; height: 25px; }
+.brand .mark { transition: width 0.35s var(--ease), height 0.35s var(--ease); }
+
+.top .spacer { flex: 1; }
+
+/* logo mark - same geometry as icons/, kept in sync deliberately */
+.mark {
+  display: block;
+  flex: none;
+  width: 19px;
+  height: 30px;
+  overflow: visible;
+}
+/* The three brand tones are all near-black, so at small sizes the sheets read
+   as a single shape. A hairline in the page colour separates them without
+   introducing a colour outside the palette. */
+.mark path { stroke: var(--paper); stroke-width: 2.2; paint-order: stroke fill; }
+.mark .s1 { fill: var(--sheet-1); }
+.mark .s2 { fill: var(--sheet-2); }
+.mark .s3 { fill: var(--sheet-3); }
+
+.mark.lg { width: 52px; height: 84px; }
+.mark.lg path { stroke-width: 1.6; }
+.msg.bot .who .mark { width: 13px; height: 21px; }
+
+/* status + controls */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.pill .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+.pill[data-state="offline"] .dot { background: #6ea88a; }
+.pill[data-state="down"] .dot { background: #c98b8b; }
+
+.ctrl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+  color: var(--ink-3);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.ctrl:hover { background: var(--surface-2); color: var(--ink); }
+.ctrl:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+
+/* ------------------------------------------------------------------ chat */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+.col {
+  max-width: var(--col);
+  margin-inline: auto;
+  padding: 26px clamp(14px, 4vw, 24px) 28px;
+}
+
+/* empty state */
+/* Landing centres the opening panel; chat aligns the thread to the top and
+   lets it grow downwards. Only the column changes - the composer is fixed. */
+.app[data-mode="landing"] .col {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 20px;
+}
+.app[data-mode="chat"] .col { padding-block: 26px 28px; }
+
+.hero[hidden] { display: none; }
+
+.hero.leaving {
+  animation: heroOut 0.4s cubic-bezier(0.4, 0, 0.9, 0.4) forwards;
+  pointer-events: none;
+}
+@keyframes heroOut {
+  to { opacity: 0; transform: translateY(-26px) scale(0.965); }
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: clamp(24px, 7vh, 64px) 0 8px;
+}
+.hero h2 {
+  margin: 22px 0 6px;
+  font-size: clamp(21px, 4.4vw, 27px);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  max-width: 46ch;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 26px;
+}
+.chip {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-2);
+  font-size: 13.5px;
+  line-height: 1.5;
+  text-align: start;
+  box-shadow: var(--shadow);
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+.chip:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.chip:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+
+/* messages */
+.msg { margin-bottom: 26px; animation: rise 0.36s var(--ease) both; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+}
+.app[data-mode="chat"] #thread > .msg:first-child { animation-delay: 0.14s; }
+
+.msg.me { display: flex; justify-content: flex-end; }
+.msg.me .body {
+  max-width: min(90%, 52ch);
+  padding: 12px 17px;
+  border-radius: 16px 16px 5px 16px;
+  background: var(--accent);
+  color: #12222e;
+  font-size: 15.5px;
+  box-shadow: var(--shadow);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+:root[data-theme="dark"] .msg.me .body { color: #0d1620; }
+[dir="ltr"] .msg.me .body { border-radius: 16px 16px 16px 5px; }
+
+.msg.bot .body {
+  color: var(--ink-2);
+  font-size: 16.5px;
+  line-height: 1.95;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.msg.bot .who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+/* citations */
+.cites { margin-top: 15px; display: grid; gap: 8px; }
+.cite {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.cite:hover { border-color: var(--accent); }
+.cite > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 13px;
+  border: 0;
+  background: none;
+  text-align: start;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.cite > button:hover { background: var(--surface-2); }
+.cite .where { flex: 1; min-width: 0; }
+.cite .chapter { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.cite .section { font-weight: 600; color: var(--ink); font-size: 13.5px; line-height: 1.5; }
+.cite .caret { display: flex; color: var(--ink-3); transition: transform 0.2s; }
+.cite.open .caret { transform: rotate(180deg); }
+.cite .quote {
+  padding: 0 13px;
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1.85;
+}
+.cite .badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* out-of-curriculum notice - presented as information, not an error */
+.notfound {
+  display: flex;
+  gap: 12px;
+  padding: 14px 15px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.notfound .icon {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+.notfound strong { display: block; color: var(--ink); font-weight: 600; }
+.notfound p { margin: 3px 0 0; color: var(--muted); font-size: 14px; }
+
+/* thinking indicator */
+.thinking { display: flex; align-items: center; gap: 11px; color: var(--muted); font-size: 13.5px; }
+.thinking .mark { width: 16px; height: 26px; }
+.thinking .mark path { animation: breathe 1.2s ease-in-out infinite; transform-box: fill-box; }
+.thinking .mark .s2 { animation-delay: 0.14s; }
+.thinking .mark .s3 { animation-delay: 0.28s; }
+@keyframes breathe {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+.meta { margin-top: 12px; color: var(--muted); font-size: 12px; }
+
+/* --------------------------------------------------------------- composer */
+.dock {
+  border-block-start: 1px solid var(--line);
+  background: var(--paper);
+  padding: 12px clamp(12px, 4vw, 24px) max(12px, env(safe-area-inset-bottom));
+}
+.composer {
+  max-width: var(--col);
+  margin-inline: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  padding: 7px 7px 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+[dir="rtl"] .composer { padding: 7px 14px 7px 7px; }
+.composer:focus-within {
+  border-color: var(--accent-ink);
+  background: var(--paper);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.composer textarea {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.6;
+  max-height: 168px;
+  padding: 7px 0;
+}
+.composer textarea::placeholder { color: var(--muted); }
+
+.send {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  transition: opacity 0.15s, transform 0.12s;
+}
+.send:disabled { opacity: 0.28; cursor: default; }
+.send:not(:disabled):hover { transform: translateY(-1px); }
+.send:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.send svg { width: 17px; height: 17px; }
+[dir="rtl"] .send svg { transform: scaleX(-1); }
+
+.foot {
+  max-width: var(--col);
+  margin: 9px auto 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- motion */
+@media (prefers-reduced-motion: reduce) {
+  /* Shortening the duration is not enough: an animation with `both` fill and a
+     delay holds its FROM state for the whole delay, so staggered content stays
+     invisible. Remove the animations outright and let the natural state show. */
+  *, *::before, *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* the shimmer paints its text with a moving gradient - give the text back */
+  .thinking span {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--muted);
+  }
+  .msg.bot .body.typing::after { display: none; }
+}
+
+@media (max-width: 560px) {
+  .brand h1 { display: none; }
+  body { font-size: 15px; }
+}
+
+/* shown only when the app was opened as file:// */
+.cmd {
+  margin: 10px 0 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink-2);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* -------------------------------------------------------------- motion --
+   Presentation only. The reduced-motion block above disables all of it. */
+
+/* caret shown while the answer is being revealed */
+.msg.bot .body.typing::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-inline-start: 3px;
+  vertical-align: -0.16em;
+  background: var(--accent-ink);
+  animation: caret 0.85s steps(2, start) infinite;
+}
+@keyframes caret { 50% { opacity: 0; } }
+
+/* citations and timing appear once the answer has finished rendering */
+.reveal { animation: reveal 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(9px); }
+}
+
+/* citation body opens by growing, not by snapping */
+.cite .quote-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+.cite.open .quote-wrap { grid-template-rows: 1fr; }
+.cite .quote-wrap > .quote {
+  overflow: hidden;
+  min-height: 0;
+  border-top: 1px solid transparent;
+  padding-block: 0;
+  opacity: 0;
+  transition: opacity 0.25s 0.06s, padding-block 0.32s, border-color 0.32s;
+}
+.cite.open .quote-wrap > .quote {
+  opacity: 1;
+  border-top-color: var(--line);
+  padding-block: 12px 13px;
+}
+
+/* suggestion chips, staggered */
+.chip { animation: chipIn 0.44s cubic-bezier(0.22, 0.9, 0.3, 1) both; animation-delay: calc(var(--i, 0) * 65ms + 120ms); }
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+}
+
+/* landing panel entrance */
+.hero h2 { animation: reveal 0.5s var(--ease) 0.62s both; }
+.hero p { animation: reveal 0.5s var(--ease) 0.72s both; }
+
+/* thinking indicator animation */
+.thinking span {
+  background: linear-gradient(90deg, var(--muted) 30%, var(--ink) 50%, var(--muted) 70%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer {
+  from { background-position: 130% 0; }
+  to { background-position: -130% 0; }
+}
+
+/* control press state */
+.ctrl:active, .chip:active, .send:not(:disabled):active { transform: translateY(1px) scale(0.98); }
+.ctrl, .send { transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.09s; }
+
+/* status indicator pulse */
+.pill .dot { position: relative; }
+.pill .dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  color: inherit;
+  opacity: 0;
+  animation: ping 2.6s ease-out infinite;
+}
+.pill[data-state="offline"] .dot::after { color: #6ea88a; }
+@keyframes ping {
+  0% { opacity: 0.5; transform: scale(0.7); }
+  70%, 100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* ------------------------------------------------------------- opening --
+   The three sheets converge into the mark, then the page settles around it. */
+
+:root { --ease: cubic-bezier(0.2, 0.85, 0.25, 1); }
+
+/* SVG transforms resolve against the element box, not the viewBox origin */
+.mark path { transform-box: fill-box; transform-origin: center; }
+
+.mark.intro .s1 { animation: sheet1 0.8s var(--ease) 0.05s both; }
+.mark.intro .s2 { animation: sheet2 0.8s var(--ease) 0.17s both; }
+.mark.intro .s3 { animation: sheet3 0.8s var(--ease) 0.29s both; }
+
+@keyframes sheet1 {
+  from { opacity: 0; transform: translate(-115%, 45%) rotate(-16deg); }
+}
+@keyframes sheet2 {
+  from { opacity: 0; transform: translate(0, 90%) scale(0.86); }
+}
+@keyframes sheet3 {
+  from { opacity: 0; transform: translate(115%, -45%) rotate(16deg); }
+}
+
+/* wordmark entrance, after the sheets have settled */
+.brand h1 {
+  animation: wordmark 0.6s var(--ease) 0.5s both;
+  overflow: hidden;
+  white-space: nowrap;
+}
+@keyframes wordmark {
+  from { opacity: 0; letter-spacing: 0.5em; transform: translateX(-6px); }
+}
+[dir="rtl"] .brand h1 { animation-name: wordmarkRtl; }
+@keyframes wordmarkRtl {
+  from { opacity: 0; letter-spacing: 0.5em; transform: translateX(6px); }
+}
+
+/* chrome settles around the mark */
+.top { animation: topIn 0.62s var(--ease) both; }
+@keyframes topIn { from { opacity: 0; transform: translateY(-100%); } }
+
+.top .pill, .top .ctrl { animation: reveal 0.5s var(--ease) both; }
+.top .pill { animation-delay: 0.58s; }
+.top #lang { animation-delay: 0.64s; }
+.top #theme { animation-delay: 0.7s; }
+
+.dock { animation: dockIn 0.66s var(--ease) 0.18s both; }
+@keyframes dockIn { from { opacity: 0; transform: translateY(100%); } }
+
+/* chips wait for the copy above them */
+.chip { animation-delay: calc(var(--i, 0) * 70ms + 0.85s); }
+
+/* a fingerprint of the same motion: the header mark replays on click */
+.brand { cursor: default; }
+.brand .mark { cursor: pointer; }

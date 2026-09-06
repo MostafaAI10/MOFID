@@ -8,7 +8,7 @@
 
 ---
 
-## 1. Workstreams and Ownershio
+## 1. Workstreams and Ownership
 
 | # | Workstream | Owner | Why this owner |
 |---|---|---|---|
@@ -72,8 +72,17 @@
 
 ---
 
-## 4. Where We Start Together
+## 4. Critical Path
 
-Given your 45% covers the AI core (A, B, C), that's the natural place for us to work through first, it's also the highest-risk, highest-dependency part, since Nayra and Momen's pieces both plug into your API. I'd suggest we start with **local Karnak serving via llama.cpp**, then move into the **RAG pipeline design**, so your teammates have a stable contract to build against as early as possible.
+Workstreams A, B and C (LLM serving, RAG, backend API) are both the highest-risk
+and the highest-dependency part of the build: the student app and the teacher
+dashboard both sit on top of the API. They are therefore sequenced first, with
+local Karnak serving established before the RAG pipeline, so that a stable API
+contract exists for the other workstreams to build against as early as possible.
 
-Ready to start on Task 1 (llama.cpp + Karnak setup) whenever you are.
+Two interfaces must be agreed before parallel work begins:
+
+- **Content schema** — the chunk format produced by workstream D and consumed by
+  workstream B. Defined in `content/README.md`.
+- **API contract** — the request and response shapes between workstream C and the
+  student app. Defined in `webapp/API_CONTRACT.md`.
