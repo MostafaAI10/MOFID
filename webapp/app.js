@@ -6,8 +6,8 @@
   const el = { scroll: $("scroll"), thread: $("thread"), hero: $("hero"), chips: $("chips"),
     app: $("app"), form: $("composer"), input: $("input"), send: $("send"), status: $("status"),
     newChat: $("newChat"), context: $("context"), contextText: $("contextText"),
-    filters: $("filters"), gradeOpts: $("gradeOpts"), subjectOpts: $("subjectOpts"),
-    gradeLabel: $("gradeLabel"), subjectLabel: $("subjectLabel"),
+    picker: $("picker"), cards: $("cards"),
+    pickBack: $("pickBack"), pickBackText: $("pickBackText"),
     toBottom: $("toBottom"),
     mic: $("mic"), recorder: $("recorder"), recTime: $("recTime"), recLevel: $("recLevel"),
     recHint: $("recHint"), recCancel: $("recCancel"), recDone: $("recDone"),
@@ -47,11 +47,14 @@
       chaptersLabel: (n) => (n === 1 ? "فصل واحد" : n === 2 ? "فصلين" : `${n} فصول`),
       scopeSearching: (m) => `بدور في ${m.chunks} مقطع من المنهج…`,
       copy: "نسخ", copied: "اتنسخ",
-      gradeWord: "الصف",
-      subjectWord: "المادة",
-      allWord: "الكل",
-      everything: "كل المناهج الموجودة",
       changeCourse: "تغيير الصف أو المادة",
+      greetMorning: "صباح الخير",
+      greetAfternoon: "مساء الخير",
+      greetEvening: "مساء الخير",
+      askGrade: "انت في أنهي سنة؟",
+      askSubject: "عايز تذاكر إيه النهاردة؟",
+      readyToAsk: "اسأل عن أي حاجة في منهجك",
+      lessonsLabel: (n) => (n === 1 ? "درس واحد" : n === 2 ? "درسين" : `${n} دروس`),
       recording: "بتسجّل…",
       recordingMock: "بتسجّل… (تجريبي)",
       sttMockNotice: "تحويل الصوت لنص لسه مش متوصّل بالسيرفر. النص اللي ظهر ده عيّنة من المنهج، مش كلامك. لما endpoint ‏/transcribe يجهز هيتحوّل كلامك فعلًا.",
@@ -93,11 +96,14 @@
       chaptersLabel: (n) => (n === 1 ? "1 chapter" : `${n} chapters`),
       scopeSearching: (m) => `Searching ${m.chunks} passages…`,
       copy: "Copy", copied: "Copied",
-      gradeWord: "Grade",
-      subjectWord: "Subject",
-      allWord: "All",
-      everything: "Everything on this box",
       changeCourse: "Change grade or subject",
+      greetMorning: "Good morning",
+      greetAfternoon: "Good afternoon",
+      greetEvening: "Good evening",
+      askGrade: "Which year are you in?",
+      askSubject: "What would you like to study today?",
+      readyToAsk: "Ask anything from your curriculum",
+      lessonsLabel: (n) => (n === 1 ? "1 lesson" : `${n} lessons`),
       recording: "Recording…",
       recordingMock: "Recording… (placeholder mode)",
       sttMockNotice: "Speech-to-text is not connected to the server yet. The text above is a sample question from the curriculum, not what you said. It will transcribe for real once the /transcribe endpoint is available.",
@@ -367,9 +373,12 @@
      panel is animated out and the thread takes the full column; the composer
      keeps its position so focus is never displaced. */
   function enterChatMode() {
+    pickerAnswered = true;
     if (el.app.dataset.mode === "chat") return;
     el.app.dataset.mode = "chat";
     el.newChat.hidden = false;
+    el.chips.hidden = false;
+    el.context.hidden = false;
     if (reduceMotion) {
       el.hero.hidden = true;
       return;
@@ -424,43 +433,171 @@
     return `${c.subject} · ${s.grades[c.grade] || c.grade}`;
   }
 
-  /* Grade and subject are independent filters, and neither is required. Leaving
-     one unset means "search across all of them", which is the sensible default
-     while the box holds a single curriculum and stays correct as more arrive.
-     Options that would produce an empty search are disabled rather than hidden,
-     so the student can see what exists without being able to reach a dead end. */
-  function optionsFor(field) {
-    const other = field === "grade" ? "subject" : "grade";
-    const values = [...new Set(courses.map((c) => c[field]))];
-    return values.map((value) => ({
-      value,
-      available: courses.some((c) => c[field] === value
-        && (!scope[other] || c[other] === scope[other])),
-    }));
+  /* A two-step choice, both steps read from the content: pick a year, then a
+     subject taught in that year. With one option a step still renders - the
+     card states what the box holds - but nothing is forced: the composer stays
+     live and an unanswered step just means the search is not narrowed. */
+  let step = "grade";
+
+  const SUBJECT_ICONS = {
+    default: '<path d="M4 5a2 2 0 0 1 2-2h11v18H6a2 2 0 0 1-2-2z"/><path d="M17 3h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-1"/>',
+    physics: '<circle cx="12" cy="12" r="2.2"/><ellipse cx="12" cy="12" rx="9.5" ry="4" /><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(120 12 12)"/>',
+    chemistry: '<path d="M9 3h6M10 3v6.5L4.6 18a2 2 0 0 0 1.7 3h11.4a2 2 0 0 0 1.7-3L14 9.5V3"/><path d="M7.5 15h9"/>',
+    maths: '<path d="M5 6h8M9 3v6M5 18h8M5 15.5h8M16 6l5 5M21 6l-5 5M18.5 16.5h4M18.5 20h4"/>',
+    arabic: '<path d="M6 15c0-3 2-5 5-5s5 2 5 5"/><path d="M4 19h16"/><circle cx="17" cy="7" r="1"/>',
+    english: '<path d="M4 19l6-14 6 14M6.5 14h7"/><path d="M18 19V9m0 0h1.6a2.4 2.4 0 0 1 0 4.8H18"/>',
+    biology: '<path d="M7 3c0 6 10 6 10 12M17 3c0 6-10 6-10 12M7 21h10M6 8h12M6.5 16h11"/>',
+    geology: '<path d="M3 19l6-11 4 6 3-4 5 9z"/>',
+  };
+
+  const SUBJECT_KEYS = [
+    [/فيزياء|physics/i, "physics"],
+    [/كيمياء|chemistry/i, "chemistry"],
+    [/رياضيات|رياضة|math/i, "maths"],
+    [/عرب|arabic/i, "arabic"],
+    [/انجليز|إنجليز|english/i, "english"],
+    [/أحياء|احياء|biology/i, "biology"],
+    [/جيولوجيا|geology/i, "geology"],
+  ];
+
+  function subjectIcon(name) {
+    const hit = SUBJECT_KEYS.find(([re]) => re.test(name || ""));
+    const paths = SUBJECT_ICONS[hit ? hit[1] : "default"];
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
+      + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + "</svg>";
   }
 
-  function renderFilterRow(container, field) {
-    container.replaceChildren();
-    for (const opt of optionsFor(field)) {
-      const b = node("button", "filter-opt");
-      b.type = "button";
-      b.textContent = field === "grade"
-        ? (t().grades[opt.value] || opt.value)
-        : opt.value;
-      b.setAttribute("aria-pressed", String(scope[field] === opt.value));
-      if (scope[field] === opt.value) b.classList.add("on");
-      if (!opt.available) b.disabled = true;
-      b.addEventListener("click", () => {
-        // clicking the active option clears it, back to searching everything
-        scope[field] = scope[field] === opt.value ? null : opt.value;
-        saveScope();
-        buildCoursePicker();
-        paintContext();
-        loadChips();
-        el.input.focus();
-      });
-      container.append(b);
+  function gradesAvailable() {
+    return [...new Set(courses.map((c) => c.grade))]
+      .sort((a, b) => Number(a) - Number(b));
+  }
+
+  function subjectsFor(grade) {
+    return courses.filter((c) => !grade || c.grade === grade);
+  }
+
+  function makeCard(opts) {
+    const b = node("button", "card" + (opts.on ? " on" : ""));
+    b.type = "button";
+    b.style.setProperty("--i", String(opts.i));
+    if (opts.icon) {
+      const ic = node("span", "card-icon");
+      ic.innerHTML = opts.icon;
+      b.append(ic);
     }
+    const text = node("span", "card-text");
+    text.append(node("span", "card-title", opts.title));
+    if (opts.meta) text.append(node("span", "card-meta", opts.meta));
+    b.append(text);
+    b.addEventListener("click", opts.onClick);
+    return b;
+  }
+
+  /* True while the landing is still asking for a year or a subject. Nothing
+     that presumes an answer - suggested questions, the header scope - may be
+     on screen during this, or the interface contradicts its own question. */
+  function isPicking() {
+    return el.app.dataset.mode !== "chat" && !pickerAnswered && courses.length > 0;
+  }
+
+  function paintPickingState() {
+    const picking = isPicking();
+    el.chips.hidden = picking;
+    el.context.hidden = picking;
+  }
+
+  function renderPicker() {
+    const s = t();
+    if (!courses.length) {
+      el.picker.hidden = true;
+      el.context.disabled = true;
+      return;
+    }
+    el.context.disabled = false;
+    if (pickerAnswered) {
+      // nothing to ask: back to the normal welcome
+      el.picker.hidden = true;
+      el.pickBack.hidden = true;
+      el.hero.querySelector("h2").textContent = greeting();
+      el.hero.querySelector("p").textContent = s.readyToAsk;
+      return;
+    }
+    el.picker.hidden = false;
+    el.context.disabled = false;
+    el.cards.replaceChildren();
+
+    if (step === "grade") {
+      el.pickBack.hidden = true;
+      el.hero.querySelector("h2").textContent = `${greeting()}`;
+      el.hero.querySelector("p").textContent = s.askGrade;
+      gradesAvailable().forEach((g, i) => {
+        const subjects = subjectsFor(g);
+        el.cards.append(makeCard({
+          i,
+          title: s.grades[g] || g,
+          meta: subjects.length === 1 ? subjects[0].subject
+            : `${subjects.length} ${lang === "en" ? "subjects" : "مواد"}`,
+          on: scope.grade === g,
+          onClick: () => chooseGrade(g),
+        }));
+      });
+      return;
+    }
+
+    el.pickBack.hidden = false;
+    el.pickBackText.textContent = s.grades[scope.grade] || scope.grade;
+    el.hero.querySelector("h2").textContent = s.askSubject;
+    el.hero.querySelector("p").textContent = "";
+    subjectsFor(scope.grade).forEach((c, i) => {
+      el.cards.append(makeCard({
+        i,
+        icon: subjectIcon(c.subject),
+        title: c.subject,
+        meta: `${t().chaptersLabel(c.chapters)}`,
+        on: scope.subject === c.subject,
+        onClick: () => chooseSubject(c),
+      }));
+    });
+  }
+
+  function greeting() {
+    const h = new Date().getHours();
+    const s = t();
+    if (h < 12) return s.greetMorning;
+    if (h < 17) return s.greetAfternoon;
+    return s.greetEvening;
+  }
+
+  function chooseGrade(g) {
+    scope.grade = g;
+    scope.subject = null;
+    step = "subject";
+    saveScope();
+    renderPicker();
+    paintPickingState();
+    paintContext();
+    loadChips();
+  }
+
+  function chooseSubject(c) {
+    scope.subject = c.subject;
+    pickerAnswered = true;
+    saveScope();
+    renderPicker();
+    paintPickingState();
+    paintContext();
+    loadChips();
+    el.input.focus();
+  }
+
+  function backToGrades() {
+    step = "grade";
+    scope.subject = null;
+    saveScope();
+    renderPicker();
+    paintPickingState();
+    paintContext();
+    loadChips();
   }
 
   function saveScope() {
@@ -474,20 +611,16 @@
   }
 
   function buildCoursePicker() {
-    if (!courses.length) {
-      el.filters.hidden = true;
-      el.context.disabled = true;
-      return;
-    }
-    el.filters.hidden = false;
-    el.gradeLabel.textContent = t().gradeWord;
-    el.subjectLabel.textContent = t().subjectWord;
-    renderFilterRow(el.gradeOpts, "grade");
-    renderFilterRow(el.subjectOpts, "subject");
-    el.context.disabled = false;
+    step = scope.grade ? "subject" : "grade";
+    renderPicker();
+    paintPickingState();
   }
 
   function openCoursePicker() {
+    if (courses.length < 2 && !scope.subject) return;
+    scope = { subject: null, grade: null };
+    pickerAnswered = false;
+    saveScope();
     startNewChat();
   }
 
@@ -564,6 +697,7 @@
     });
     paintStatus();
     paintContext();
+    if (courses.length) renderPicker();
     localStorage.setItem("mofid.lang", lang);
   }
 
@@ -615,10 +749,16 @@
      must clear it. These are shared classroom devices, and the next student has
      no business seeing the previous one's questions. Nothing leaves the device
      and nothing is tied to a person - there are no accounts by design. */
+  let presetGrade = null;
   let scopeMeta = null;
   let courses = [];
   // Either field may be null, which means "do not narrow on this one".
   let scope = { subject: null, grade: null };
+  /* The picker is a first-run question, not something to repeat. Once the
+     student has answered it - or simply started asking without answering - a
+     new conversation keeps the same scope. Changing it is done deliberately,
+     through the chip in the header. */
+  let pickerAnswered = false;
   let mockVoiceNoticeShown = false;
   const HISTORY_KEY = "mofid.thread";
   let history = [];
@@ -652,6 +792,11 @@
     clearHistory();
     el.thread.replaceChildren();
     el.newChat.hidden = true;
+    // the thread was scrolled to its end; without this the landing opens
+    // somewhere below the fold and looks empty
+    el.scroll.scrollTop = 0;
+    el.toBottom.hidden = true;
+    el.app.dataset.scrolled = "false";
     el.app.dataset.mode = "landing";
     el.hero.hidden = false;
     el.hero.classList.remove("leaving");
@@ -807,10 +952,11 @@
 
   function init() {
     /* URL overrides, for testing and for the demo runbook:
-       ?theme=light|dark   ?lang=ar|en   ?q=<question> (asks it on load) */
+       ?theme=light|dark   ?lang=ar|en   ?grade=<n>   ?q=<question> (asks it on load) */
     const params = new URLSearchParams(location.search);
 
     if (["ar", "en"].includes(params.get("lang"))) lang = params.get("lang");
+    presetGrade = params.get("grade");
 
     let saved = params.get("theme") || localStorage.getItem("mofid.theme");
     if (!["light", "dark"].includes(saved)) {
@@ -838,6 +984,7 @@
 
     el.newChat.addEventListener("click", startNewChat);
     el.context.addEventListener("click", openCoursePicker);
+    el.pickBack.addEventListener("click", backToGrades);
     el.toBottom.addEventListener("click", () => toBottom(true));
     el.scroll.addEventListener("scroll", () => {
       el.app.dataset.scrolled = el.scroll.scrollTop > 8 ? "true" : "false";
@@ -885,11 +1032,15 @@
       .then(([m, list]) => {
         scopeMeta = m;
         courses = list;
+        if (presetGrade && list.some((c) => c.grade === presetGrade)) {
+          scope.grade = presetGrade;
+        }
         try {
           const saved = JSON.parse(sessionStorage.getItem(SCOPE_KEY) || "null");
           if (saved) {
             if (list.some((c) => c.subject === saved.subject)) scope.subject = saved.subject;
             if (list.some((c) => c.grade === saved.grade)) scope.grade = saved.grade;
+            if (scope.subject) pickerAnswered = true;
           }
         } catch { /* nothing stored */ }
         buildCoursePicker();
