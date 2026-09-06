@@ -24,11 +24,28 @@
       <h1>MOFID</h1>
     </div>
     <span class="spacer"></span>
+
+    <button class="context" id="context" type="button" aria-live="polite">
+      <svg class="context-mark" viewBox="22 14 43 70" aria-hidden="true">
+        <path class="s1" d="M22.5,28.5 L40.0,20.0 L40.0,74.5 L22.5,83.0 Z"/>
+        <path class="s2" d="M34.3,25.8 L51.8,17.3 L51.8,71.8 L34.3,80.3 Z"/>
+        <path class="s3" d="M46.1,23.1 L63.6,14.6 L63.6,69.1 L46.1,77.6 Z"/>
+      </svg>
+      <span class="context-text" id="contextText"></span>
+    </button>
+
     <span class="pill" id="status" data-state="offline">
       <span class="dot"></span><span id="statusText">جارٍ التحقق…</span>
     </span>
+    <button class="ctrl" id="newChat" type="button" aria-label="محادثة جديدة" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </button>
     <button class="ctrl" id="lang" type="button" title="English">EN</button>
     <button class="ctrl" id="theme" type="button" aria-label="تبديل الوضع الليلي">◐</button>
+    <div class="progress" id="progress" aria-hidden="true"><i></i></div>
   </header>
 
   <main class="scroll" id="scroll">
@@ -43,18 +60,41 @@
         <h2 data-i18n="heroTitle">اسأل عن أي حاجة في منهجك</h2>
         <p data-i18n="heroSub">كل إجابة بترجع من كتاب المنهج نفسه، وهتلاقي تحتها الفصل والدرس
           اللي جات منه. ولو السؤال مش في منهجك، هقولك بصراحة.</p>
+        <div class="picker" id="picker" hidden>
+          <button class="pick-back" id="pickBack" type="button" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 6l-6 6 6 6"/>
+            </svg>
+            <span id="pickBackText"></span>
+          </button>
+          <div class="cards" id="cards"></div>
+        </div>
         <div class="chips" id="chips"></div>
       </section>
 
       <div id="thread" aria-live="polite"></div>
 
     </div>
+    <button class="to-bottom" id="toBottom" type="button" aria-label="النزول لآخر المحادثة" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v14M6 13l6 6 6-6"/>
+      </svg>
+    </button>
   </main>
 
   <div class="dock">
     <form class="composer" id="composer">
       <textarea id="input" rows="1" enterkeyhint="send"
         placeholder="اكتب سؤالك…" data-i18n-ph="placeholder" autocomplete="off"></textarea>
+      <button class="mic" id="mic" type="button" aria-label="سؤال بالصوت" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="2" width="6" height="12" rx="3"/>
+          <path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>
+        </svg>
+      </button>
       <button class="send" id="send" type="submit" disabled aria-label="إرسال">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -62,7 +102,27 @@
         </svg>
       </button>
     </form>
-    <p class="foot" id="foot" data-i18n="foot">مفيد بيشتغل من غير إنترنت · الإجابات من منهج الفيزياء للصف الثالث الثانوي</p>
+
+    <div class="recorder" id="recorder" hidden>
+      <button class="rec-cancel" id="recCancel" type="button" aria-label="إلغاء">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <span class="rec-dot" aria-hidden="true"></span>
+      <span class="rec-time" id="recTime">0:00</span>
+      <div class="rec-level" id="recLevel" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <span class="rec-hint" id="recHint">بتسجّل…</span>
+      <button class="rec-done" id="recDone" type="button" aria-label="تم">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 12l6 6L20 6"/>
+        </svg>
+      </button>
+    </div>
+    <p class="foot" id="foot" data-i18n="foot">مفيد بيشتغل من غير إنترنت · الإجابات من كتاب المنهج نفسه</p>
   </div>
 
 </div>

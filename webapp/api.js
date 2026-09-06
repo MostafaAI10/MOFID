@@ -111,11 +111,20 @@ const MofidAPI = (() => {
   }
 
   // ------------------------------------------------------------ mock index
+  let CHUNKS = null;
   let INDEX = null;
+
+  /* The raw list is enough to describe what the box holds. Tokenising it into
+     an inverted index costs real time on a low-end tablet, and nothing on the
+     landing screen needs it, so that work waits until a question is asked. */
+  function loadChunks() {
+    if (!CHUNKS) CHUNKS = fetch("data/curriculum.json").then((r) => r.json());
+    return CHUNKS;
+  }
 
   async function buildIndex() {
     if (INDEX) return INDEX;
-    const chunks = await fetch("data/curriculum.json").then((r) => r.json());
+    const chunks = await loadChunks();
     const df = new Map();
     const docs = chunks.map((c) => {
       const bag = new Map();
@@ -153,8 +162,17 @@ const MofidAPI = (() => {
   }
 
   /** tf-idf scoring, plus how much of the question the chunk actually covers. */
-  async function retrieve(question, k = 3) {
-    const { docs, df, n } = await buildIndex();
+  function inScope(chunk, scope) {
+    if (!scope) return true;
+    return (!scope.subject || chunk.subject === scope.subject)
+      && (!scope.grade || chunk.grade === scope.grade);
+  }
+
+  async function retrieve(question, k = 3, scope = null) {
+    const index = await buildIndex();
+    const { df } = index;
+    const docs = index.docs.filter((d) => inScope(d.chunk, scope));
+    const n = docs.length || index.n;
     const qt = [...new Set(tokens(question))];
     if (!qt.length) return [];
     const unknownTerm = namesSomethingUnknown(qt, df);
@@ -182,9 +200,9 @@ const MofidAPI = (() => {
   const COVERAGE_FLOOR = 0.35;
   const UNKNOWN_TERM_COVERAGE = 0.6; // stricter when the question names something unknown
 
-  async function mockAsk(question, lang) {
+  async function mockAsk(question, lang, scope) {
     const started = performance.now();
-    const hits = await retrieve(question, 3);
+    const hits = await retrieve(question, 3, scope);
     // approximate the latency of a real inference call
     await new Promise((r) => setTimeout(r, 400 + Math.random() * 700));
     const top = hits[0];
@@ -212,14 +230,20 @@ const MofidAPI = (() => {
   }
 
   // ------------------------------------------------------------------ live
-  async function liveAsk(question, lang) {
+  async function liveAsk(question, lang, scope) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), CONFIG.TIMEOUT_MS);
     try {
       const res = await fetch(`${CONFIG.BASE_URL}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, lang }),
+        body: JSON.stringify({
+          question,
+          lang,
+          // narrows retrieval when the box holds more than one curriculum
+          subject: scope && scope.subject ? scope.subject : undefined,
+          grade: scope && scope.grade ? scope.grade : undefined,
+        }),
         signal: ctrl.signal,
       });
       if (!res.ok) throw new Error(`server returned ${res.status}`);
@@ -241,18 +265,92 @@ const MofidAPI = (() => {
     get mode() {
       return CONFIG.MODE;
     },
-    ask(question, lang) {
-      return CONFIG.MODE === "live" ? liveAsk(question, lang) : mockAsk(question, lang);
+    ask(question, lang, scope) {
+      return CONFIG.MODE === "live"
+        ? liveAsk(question, lang, scope)
+        : mockAsk(question, lang, scope);
     },
     async health() {
       if (CONFIG.MODE !== "live") {
-        const { n } = await buildIndex();
-        return { status: "ok", mode: "mock", chunks: n };
+        const chunks = await loadChunks();
+        return { status: "ok", mode: "mock", chunks: chunks.length };
       }
       const res = await fetch(`${CONFIG.BASE_URL}/health`);
       if (!res.ok) throw new Error(`health check failed (${res.status})`);
       return { ...(await res.json()), mode: "live" };
     },
+    /* Voice input.
+       Deliberately NOT the browser SpeechRecognition API: that uploads audio to
+       a cloud service, which would break the offline guarantee the product is
+       built on. Audio is posted to the local box instead, where an on-device
+       model transcribes it. Until that endpoint exists, mock mode exercises the
+       whole recording path and returns placeholder text. */
+    get canTranscribe() {
+      return typeof MediaRecorder !== "undefined"
+        && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    },
+
+    /* True while no transcription backend exists. The caller must say so in the
+       interface: mock mode returns a sample question rather than anything the
+       microphone heard, and text that looks plausible but is not what was said
+       is worse than no text at all if it arrives unannounced. */
+    get transcribeIsMock() {
+      return CONFIG.MODE !== "live";
+    },
+
+    async transcribe(blob, lang) {
+      if (CONFIG.MODE !== "live") {
+        await new Promise((r) => setTimeout(r, 700));
+        const pool = await this.suggestions(lang);
+        return { text: pool[Math.floor(Math.random() * pool.length)], mock: true };
+      }
+      const form = new FormData();
+      form.append("audio", blob, "question.webm");
+      form.append("lang", lang);
+      const res = await fetch(`${CONFIG.BASE_URL}/transcribe`, {
+        method: "POST",
+        body: form,
+      });
+      if (!res.ok) throw new Error(`transcription failed (${res.status})`);
+      const data = await res.json();
+      return { text: (data.text || "").trim() };
+    },
+
+    /** What the box actually holds, for the header context strip. */
+    async meta() {
+      const chunks = await loadChunks();
+      const chapters = new Set(), subjects = new Set(), grades = new Set();
+      for (const chunk of chunks) {
+        chapters.add(chunk.chapter);
+        if (chunk.subject) subjects.add(chunk.subject);
+        if (chunk.grade) grades.add(chunk.grade);
+      }
+      // Reported as sets: the box is not assumed to hold one subject or one
+      // grade, so adding a second curriculum needs no change here or upstream.
+      return {
+        subjects: [...subjects],
+        grades: [...grades],
+        chapters: chapters.size,
+        chunks: chunks.length,
+      };
+    },
+
+    /* The distinct subject+grade pairs the box holds. One pair means there is
+       nothing to choose and the interface should not ask. */
+    async courses() {
+      const chunks = await loadChunks();
+      const map = new Map();
+      for (const chunk of chunks) {
+        const key = `${chunk.subject}|${chunk.grade}`;
+        const entry = map.get(key)
+          || { subject: chunk.subject, grade: chunk.grade, chapters: new Set(), chunks: 0 };
+        entry.chapters.add(chunk.chapter);
+        entry.chunks++;
+        map.set(key, entry);
+      }
+      return [...map.values()].map((c) => ({ ...c, chapters: c.chapters.size }));
+    },
+
     /** Used by the landing panel. */
     suggestions(lang) {
       const file = lang === "en" ? "data/suggestions.en.json" : "data/suggestions.json";

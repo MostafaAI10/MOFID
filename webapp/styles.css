@@ -51,6 +51,11 @@
 
 * { box-sizing: border-box; }
 
+/* A `display` declaration outranks the user-agent rule for [hidden], so any
+   element styled as flex or grid stays visible when hidden is set. Settle it
+   once here rather than per component. */
+[hidden] { display: none !important; }
+
 html, body {
   height: 100%;
   margin: 0;
@@ -197,8 +202,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   padding-block: 20px;
 }
 .app[data-mode="chat"] .col { padding-block: 26px 28px; }
-
-.hero[hidden] { display: none; }
 
 .hero.leaving {
   animation: heroOut 0.4s cubic-bezier(0.4, 0, 0.9, 0.4) forwards;
@@ -456,6 +459,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     scroll-behavior: auto !important;
   }
   /* the shimmer paints its text with a moving gradient - give the text back */
+  .rec-dot { animation: none !important; }
   .thinking span {
     background: none;
     -webkit-background-clip: border-box;
@@ -628,3 +632,320 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* a fingerprint of the same motion: the header mark replays on click */
 .brand { cursor: default; }
 .brand .mark { cursor: pointer; }
+
+/* ---------------------------------------------------------------- voice --
+   Recording replaces the composer in place, so nothing below it shifts. */
+
+.mic {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--ink-3);
+  transition: background 0.15s, color 0.15s, transform 0.09s;
+}
+.mic:hover { background: var(--surface-2); color: var(--ink); }
+.mic:active { transform: scale(0.94); }
+.mic:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.mic svg { width: 19px; height: 19px; }
+
+.recorder {
+  max-width: var(--col);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.rec-cancel, .rec-done {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--ink-3);
+  transition: background 0.15s, color 0.15s, transform 0.09s;
+}
+.rec-cancel:hover { background: var(--surface-2); color: var(--ink); }
+.rec-done {
+  background: var(--ink);
+  color: var(--paper);
+}
+.rec-done:hover { transform: translateY(-1px); }
+.rec-cancel:active, .rec-done:active { transform: scale(0.94); }
+.rec-cancel svg, .rec-done svg { width: 16px; height: 16px; }
+
+.rec-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #c0645f;
+  animation: recPulse 1.3s ease-in-out infinite;
+}
+@keyframes recPulse { 50% { opacity: 0.25; } }
+
+.rec-time {
+  flex: none;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 34px;
+}
+
+.rec-level {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 26px;
+  min-width: 0;
+  overflow: hidden;
+}
+.rec-level i {
+  flex: 1;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform: scaleY(0.12);
+  transition: transform 0.07s linear;
+}
+
+.rec-hint {
+  flex: none;
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+/* while the audio is being turned into text the bar goes quiet */
+.app[data-transcribing="true"] .rec-dot { animation: none; opacity: 0.3; }
+.app[data-transcribing="true"] .rec-level i { background: var(--muted); transform: scaleY(0.12); }
+.app[data-transcribing="true"] .rec-done,
+.app[data-transcribing="true"] .rec-cancel { opacity: 0.4; pointer-events: none; }
+
+@media (max-width: 560px) {
+  .rec-hint { display: none; }
+}
+
+/* ------------------------------------------------------------- context --
+   Centred in the header: what this box actually holds. It doubles as the
+   activity indicator, so the student can see the search is running against a
+   known, finite set of material rather than the open web. */
+
+.context {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 42%;
+  padding: 5px 13px 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: reveal 0.5s var(--ease) 0.52s both;
+}
+
+.context-mark { width: 10px; height: 16px; flex: none; opacity: 0.75; }
+.context-mark .s1 { fill: var(--sheet-1); }
+.context-mark .s2 { fill: var(--sheet-2); }
+.context-mark .s3 { fill: var(--sheet-3); }
+
+.context-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* while a question is in flight the strip says so and the sheets riffle */
+.app[data-busy="true"] .context {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.app[data-busy="true"] .context-mark { opacity: 1; }
+.app[data-busy="true"] .context-mark path { animation: riffle 1s ease-in-out infinite; }
+.app[data-busy="true"] .context-mark .s2 { animation-delay: 0.12s; }
+.app[data-busy="true"] .context-mark .s3 { animation-delay: 0.24s; }
+@keyframes riffle {
+  50% { opacity: 0.25; }
+}
+
+/* a hairline that fills while the answer is being found */
+.progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.progress i {
+  display: block;
+  height: 100%;
+  width: 40%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.app[data-busy="true"] .progress i {
+  opacity: 1;
+  animation: sweep 1.15s ease-in-out infinite;
+}
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(350%); }
+}
+
+@media (max-width: 900px) { .context { display: none; } }
+
+/* answer actions */
+.actions { display: flex; gap: 6px; margin-top: 13px; }
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 12.5px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.09s;
+}
+.action:hover { background: var(--surface-2); color: var(--ink); }
+.action:active { transform: scale(0.97); }
+.action:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.action.done { border-color: var(--accent); color: var(--accent-ink); }
+
+/* jump to the newest message */
+.to-bottom {
+  position: absolute;
+  inset-inline-end: clamp(14px, 4vw, 28px);
+  bottom: 18px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink-2);
+  box-shadow: var(--shadow);
+  animation: reveal 0.3s var(--ease) both;
+}
+.to-bottom:hover { background: var(--surface-2); }
+.to-bottom svg { width: 17px; height: 17px; }
+.scroll { position: relative; }
+
+/* the header lifts once the thread scrolls under it */
+.app[data-scrolled="true"] .top { box-shadow: 0 1px 12px rgba(16, 20, 26, 0.07); }
+:root[data-theme="dark"] .app[data-scrolled="true"] .top { box-shadow: 0 1px 14px rgba(0, 0, 0, 0.6); }
+
+/* inline citation markers - the source stays attached to the claim */
+.msg.bot .body .para { margin: 0 0 1.15em; }
+.msg.bot .body .para:last-child { margin-bottom: 0; }
+
+.cite-marker {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  margin-inline-start: 6px;
+  vertical-align: 0.35em;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, transform 0.09s;
+}
+.cite-marker:hover { background: var(--accent); border-color: var(--accent); }
+.cite-marker:active { transform: scale(0.92); }
+.cite-marker:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+
+.cite.flash { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.cite { transition: border-color 0.2s, box-shadow 0.2s; }
+
+/* ------------------------------------------------------------- filters --
+   Grade and subject are separate, and neither has to be set. */
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 24px;
+  animation: reveal 0.5s var(--ease) 0.8s both;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-label {
+  color: var(--muted);
+  font-size: 12.5px;
+  min-width: 42px;
+  text-align: end;
+}
+
+.filter-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.filter-opt {
+  padding: 6px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
+}
+.filter-opt:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); }
+.filter-opt:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.filter-opt:active:not(:disabled) { transform: scale(0.97); }
+
+.filter-opt.on {
+  border-color: var(--accent-ink);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.filter-opt:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* the context strip is a control only when there is something to change */
+.context { cursor: pointer; font: inherit; font-size: 12.5px; }
+.context:disabled { cursor: default; }
+.context:not(:disabled):hover { border-color: var(--accent); color: var(--ink-2); }
+.context:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }

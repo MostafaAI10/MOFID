@@ -1,6 +1,6 @@
 /* Mofid service worker - the app must survive with no network at all.
    Bump CACHE when any shell file changes, or clients keep the old copy. */
-const CACHE = "mofid-v2";
+const CACHE = "mofid-v11";
 
 const SHELL = [
   ".", "index.html", "styles.css", "app.js", "api.js",
