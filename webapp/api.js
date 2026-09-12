@@ -9,10 +9,10 @@
 const MofidAPI = (() => {
   const CONFIG = {
     // Set to "live" once the backend is available.
-    MODE: "mock", // "mock" | "live"
+    MODE: "live", // "mock" | "live"
     // Empty string means same origin. Set an absolute URL only when the app
     // is served from somewhere other than the API.
-    BASE_URL: "",
+    BASE_URL: "http://localhost:8082",
     TIMEOUT_MS: 60000, // a quantized model on modest hardware can be slow
   };
 
