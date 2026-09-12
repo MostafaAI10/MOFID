@@ -456,7 +456,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
     scroll-behavior: auto !important;
   }
   /* the shimmer paints text with a moving gradient; restore plain text */
-  .rec-dot { animation: none !important; }
   .thinking span {
     background: none;
     -webkit-background-clip: border-box;
@@ -629,114 +628,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* a fingerprint of the same motion: the header mark replays on click */
 .brand { cursor: default; }
 .brand .mark { cursor: pointer; }
-
-/* ---------------------------------------------------------------- voice --
-   Recording replaces the composer in place, so nothing below it shifts. */
-
-.mic {
-  flex: none;
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 10px;
-  background: none;
-  color: var(--ink-3);
-  transition: background 0.15s, color 0.15s, transform 0.09s;
-}
-.mic:hover { background: var(--surface-2); color: var(--ink); }
-.mic:active { transform: scale(0.94); }
-.mic:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
-.mic svg { width: 19px; height: 19px; }
-
-.recorder {
-  max-width: var(--col);
-  margin-inline: auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
-  border: 1px solid var(--accent);
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-.rec-cancel, .rec-done {
-  flex: none;
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 9px;
-  background: none;
-  color: var(--ink-3);
-  transition: background 0.15s, color 0.15s, transform 0.09s;
-}
-.rec-cancel:hover { background: var(--surface-2); color: var(--ink); }
-.rec-done {
-  background: var(--ink);
-  color: var(--paper);
-}
-.rec-done:hover { transform: translateY(-1px); }
-.rec-cancel:active, .rec-done:active { transform: scale(0.94); }
-.rec-cancel svg, .rec-done svg { width: 16px; height: 16px; }
-
-.rec-dot {
-  flex: none;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #c0645f;
-  animation: recPulse 1.3s ease-in-out infinite;
-}
-@keyframes recPulse { 50% { opacity: 0.25; } }
-
-.rec-time {
-  flex: none;
-  color: var(--ink-2);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  min-width: 34px;
-}
-
-.rec-level {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  height: 26px;
-  min-width: 0;
-  overflow: hidden;
-}
-.rec-level i {
-  flex: 1;
-  height: 100%;
-  min-width: 2px;
-  border-radius: 2px;
-  background: var(--accent);
-  transform: scaleY(0.12);
-  transition: transform 0.07s linear;
-}
-
-.rec-hint {
-  flex: none;
-  color: var(--muted);
-  font-size: 12.5px;
-  white-space: nowrap;
-}
-
-/* while the audio is being turned into text the bar goes quiet */
-.app[data-transcribing="true"] .rec-dot { animation: none; opacity: 0.3; }
-.app[data-transcribing="true"] .rec-level i { background: var(--muted); transform: scaleY(0.12); }
-.app[data-transcribing="true"] .rec-done,
-.app[data-transcribing="true"] .rec-cancel { opacity: 0.4; pointer-events: none; }
-
-@media (max-width: 560px) {
-  .rec-hint { display: none; }
-}
 
 /* ------------------------------------------------------------- context --
    Centred in the header: what this box actually holds. It doubles as the

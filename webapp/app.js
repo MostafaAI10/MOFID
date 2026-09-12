@@ -9,8 +9,6 @@
     picker: $("picker"), cards: $("cards"),
     pickBack: $("pickBack"), pickBackText: $("pickBackText"),
     toBottom: $("toBottom"),
-    mic: $("mic"), recorder: $("recorder"), recTime: $("recTime"), recLevel: $("recLevel"),
-    recHint: $("recHint"), recCancel: $("recCancel"), recDone: $("recDone"),
     statusText: $("statusText"), lang: $("lang"), theme: $("theme"), foot: $("foot") };
 
   // --------------------------------------------------------------- strings
@@ -38,7 +36,6 @@
       took: (ms) => `الرد في ${(ms / 1000).toFixed(1)} ثانية`,
       themeLabel: "تبديل الوضع الليلي",
       sendLabel: "إرسال",
-      micLabel: "سؤال بالصوت",
       newChat: "محادثة جديدة",
       grades: { "7": "الأول الإعدادي", "8": "الثاني الإعدادي", "9": "الثالث الإعدادي",
                 "10": "الأول الثانوي", "11": "الثاني الثانوي", "12": "الثالث الثانوي" },
@@ -54,14 +51,6 @@
       askGrade: "انت في أنهي سنة؟",
       askSubject: "عايز تذاكر إيه النهاردة؟",
       readyToAsk: "اسأل عن أي حاجة في منهجك",
-      recording: "بتسجّل…",
-      recordingMock: "بتسجّل… (تجريبي)",
-      sttMockNotice: "تحويل الصوت لنص لسه مش متوصّل بالسيرفر. النص اللي ظهر ده عيّنة من المنهج، مش كلامك. لما endpoint ‏/transcribe يجهز هيتحوّل كلامك فعلًا.",
-      transcribing: "بحوّل الكلام لنص…",
-      micDenied: "محتاج إذن الميكروفون. افتحي إعدادات الموقع في المتصفح واسمحي بالميكروفون.",
-      micFailed: "مقدرتش أسجّل. اتأكدي إن في ميكروفون متوصّل.",
-      sttFailed: "مقدرتش أحوّل الكلام لنص. جربي تاني أو اكتبي السؤال.",
-      sttEmpty: "مسمعتش حاجة واضحة. جربي تاني.",
     },
     en: {
       dir: "ltr", other: "ع", title: "Mofid",
@@ -86,7 +75,6 @@
       took: (ms) => `answered in ${(ms / 1000).toFixed(1)}s`,
       themeLabel: "Toggle dark mode",
       sendLabel: "Send",
-      micLabel: "Ask by voice",
       newChat: "New conversation",
       grades: { "7": "Grade 7", "8": "Grade 8", "9": "Grade 9",
                 "10": "Grade 10", "11": "Grade 11", "12": "Grade 12" },
@@ -102,14 +90,6 @@
       askGrade: "Which year are you in?",
       askSubject: "What would you like to study today?",
       readyToAsk: "Ask anything from your curriculum",
-      recording: "Recording…",
-      recordingMock: "Recording… (placeholder mode)",
-      sttMockNotice: "Speech-to-text is not connected to the server yet. The text above is a sample question from the curriculum, not what you said. It will transcribe for real once the /transcribe endpoint is available.",
-      transcribing: "Transcribing…",
-      micDenied: "Microphone permission is needed. Allow it in your browser's site settings.",
-      micFailed: "Couldn't start recording. Check that a microphone is connected.",
-      sttFailed: "Couldn't turn that into text. Try again, or type the question.",
-      sttEmpty: "I didn't catch anything clear. Try again.",
     },
   };
 
@@ -670,8 +650,6 @@
     el.theme.setAttribute("aria-label", s.themeLabel);
     el.send.setAttribute("aria-label", s.sendLabel);
     el.input.placeholder = s.placeholder;
-    el.mic.setAttribute("aria-label", s.micLabel);
-    el.mic.title = s.micLabel;
     el.newChat.setAttribute("aria-label", s.newChat);
     el.newChat.title = s.newChat;
     el.foot.textContent = s.foot;
@@ -738,7 +716,6 @@
      directly - a new conversation keeps the same scope. It is reopened from the
      header chip. */
   let pickerAnswered = false;
-  let mockVoiceNoticeShown = false;
   const HISTORY_KEY = "mofid.thread";
   let history = [];
 
@@ -784,130 +761,6 @@
     buildCoursePicker();
     loadChips();
     el.input.focus();
-  }
-
-  // ------------------------------------------------------------------ voice
-  const rec = {
-    media: null, stream: null, chunks: [], started: 0,
-    timer: null, raf: null, audioCtx: null, analyser: null, cancelled: false,
-  };
-
-  function stopTracks() {
-    if (rec.stream) rec.stream.getTracks().forEach((t) => t.stop());
-    if (rec.audioCtx) rec.audioCtx.close().catch(() => {});
-    clearInterval(rec.timer);
-    cancelAnimationFrame(rec.raf);
-    rec.stream = rec.audioCtx = rec.analyser = null;
-  }
-
-  function showRecorder(on) {
-    el.recorder.hidden = !on;
-    el.form.hidden = on;
-    el.app.dataset.recording = on ? "true" : "false";
-  }
-
-  /* Live input level - the only signal that the microphone is picking up
-     sound, which matters on shared devices. */
-  function meter() {
-    const bars = el.recLevel.children;
-    const data = new Uint8Array(rec.analyser.frequencyBinCount);
-    const draw = () => {
-      rec.analyser.getByteFrequencyData(data);
-      const step = Math.floor(data.length / bars.length);
-      for (let i = 0; i < bars.length; i++) {
-        let sum = 0;
-        for (let j = 0; j < step; j++) sum += data[i * step + j];
-        const v = Math.min(1, (sum / step) / 128);
-        bars[i].style.transform = `scaleY(${(0.12 + v * 0.88).toFixed(3)})`;
-      }
-      rec.raf = requestAnimationFrame(draw);
-    };
-    draw();
-  }
-
-  function tick() {
-    const secs = Math.floor((Date.now() - rec.started) / 1000);
-    el.recTime.textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
-    if (secs >= 120) stopRecording(false); // a question is never two minutes long
-  }
-
-  async function startRecording() {
-    if (busy || rec.media) return;
-    let stream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (err) {
-      addNotice(err && err.name === "NotAllowedError" ? t().micDenied : t().micFailed);
-      return;
-    }
-    rec.stream = stream;
-    rec.chunks = [];
-    rec.cancelled = false;
-
-    try {
-      rec.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      rec.analyser = rec.audioCtx.createAnalyser();
-      rec.analyser.fftSize = 128;
-      rec.audioCtx.createMediaStreamSource(stream).connect(rec.analyser);
-      meter();
-    } catch { /* level meter unavailable; recording continues */ }
-
-    const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"]
-      .find((m) => MediaRecorder.isTypeSupported(m));
-    rec.media = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
-    rec.media.ondataavailable = (e) => { if (e.data.size) rec.chunks.push(e.data); };
-    rec.media.onstop = onRecordingStopped;
-    rec.media.start();
-
-    rec.started = Date.now();
-    el.recTime.textContent = "0:00";
-    el.recHint.textContent = MofidAPI.transcribeIsMock ? t().recordingMock : t().recording;
-    rec.timer = setInterval(tick, 250);
-    showRecorder(true);
-  }
-
-  function stopRecording(cancelled) {
-    if (!rec.media) return;
-    rec.cancelled = cancelled;
-    try { rec.media.stop(); } catch { /* already stopped */ }
-  }
-
-  async function onRecordingStopped() {
-    const blob = new Blob(rec.chunks, { type: rec.media.mimeType || "audio/webm" });
-    rec.media = null;
-    stopTracks();
-
-    if (rec.cancelled || blob.size < 1200) {
-      showRecorder(false);
-      el.input.focus();
-      return;
-    }
-
-    el.recHint.textContent = t().transcribing;
-    el.app.dataset.transcribing = "true";
-    try {
-      const { text, mock } = await MofidAPI.transcribe(blob, lang);
-      showRecorder(false);
-      if (!text) {
-        addNotice(t().sttEmpty);
-      } else {
-        if (mock && !mockVoiceNoticeShown) {
-          mockVoiceNoticeShown = true;
-          addNotice(t().sttMockNotice);
-        }
-        // land it in the input rather than sending, so it can be corrected
-        el.input.value = text;
-        autogrow();
-        syncSend();
-      }
-    } catch (err) {
-      console.error(err);
-      showRecorder(false);
-      addNotice(t().sttFailed);
-    } finally {
-      el.app.dataset.transcribing = "false";
-      el.input.focus();
-    }
   }
 
   // ------------------------------------------------------------------ init
@@ -966,13 +819,6 @@
       el.app.dataset.scrolled = el.scroll.scrollTop > 8 ? "true" : "false";
       el.toBottom.hidden = nearBottom() || !el.thread.children.length;
     }, { passive: true });
-
-    if (MofidAPI.canTranscribe) {
-      el.mic.hidden = false;
-      el.mic.addEventListener("click", startRecording);
-      el.recDone.addEventListener("click", () => stopRecording(false));
-      el.recCancel.addEventListener("click", () => stopRecording(true));
-    }
 
     el.lang.addEventListener("click", () => {
       lang = lang === "ar" ? "en" : "ar";

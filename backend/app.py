@@ -33,7 +33,7 @@ class AskRequest(BaseModel):
     lang: str = "ar"
     subject: str | None = None
     grade: str | None = None
-    max_tokens: int = 150
+    max_tokens: int = config.MAX_ANSWER_TOKENS
 
 
 class Citation(BaseModel):
@@ -73,7 +73,9 @@ def health():
 @app.post("/ask", response_model=AskResponse)
 def ask(req: AskRequest):
     start = time.monotonic()
-    chunks, metas = retrieve_context(req.question)
+    chunks, metas = retrieve_context(
+        req.question, subject=req.subject, grade=req.grade
+    )
 
     if not chunks:
         return AskResponse(

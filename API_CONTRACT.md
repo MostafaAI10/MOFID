@@ -29,8 +29,8 @@ Ask a question grounded in the loaded curriculum.
 |------------|--------|----------|------------------------------------------------------------------------|
 | `question` | string | yes      | —                                                                      |
 | `lang`     | string | no       | `"ar"` \| `"en"`. Accepted now; not yet used to change answer language, one Arabic curriculum is loaded for MVP. |
-| `subject`  | string | no       | Narrows retrieval when the box holds more than one curriculum. Ignored for MVP (single subject loaded). |
-| `grade`    | string | no       | Same as above.                                                        |
+| `subject`  | string | no       | Narrows retrieval to one course. Must match the `subject` on the indexed chunks exactly (e.g. `"الفيزياء"`). Omit to search everything. |
+| `grade`    | string | no       | Same as above (e.g. `"12"`).                                          |
 
 ### Response — `200`
 
@@ -121,11 +121,6 @@ Same chunk schema as `content/physics_grade12.json` — `id`, `subject`,
 - `GET /debug/chunk/{chunk_id}`: dev-only inspection endpoint used while
   building the RAG pipeline. Not called by any frontend. Keep it for
   debugging, but don't build against it.
-- `POST /transcribe`: voice input. Deferred; out of scope for now.
-  `webapp/api.js` already has the client-side plumbing for it
-  (`transcribe()`, `canTranscribe`) and degrades gracefully with a mock
-  response and a visible notice when this endpoint doesn't exist, so
-  nothing breaks by leaving it unimplemented.
 
 ---
 
@@ -133,7 +128,9 @@ Same chunk schema as `content/physics_grade12.json` — `id`, `subject`,
 
 - [x] Contract drafted from `webapp/api.js`'s `liveAsk`/`health` and
       `app.js`'s citation rendering (`.chapter` / `.section` access).
-- [ ] Backend (`api_code` in `MOFID_Model_v02.ipynb`) updated to match
-      next step.
-- [ ] Verified end-to-end with `MODE: "live"` against real gold-set
-      questions.
+- [x] Backend updated to match.
+- [x] Verified with `MODE: "live"` against the gold set: request and response
+      shapes, citations against `content/physics_grade12.json`, refusals, and
+      CORS from the webapp origin.
+- [ ] Answer quality, which needs the real model rather than the retrieval
+      layer alone.

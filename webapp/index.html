@@ -211,13 +211,6 @@
     <form class="composer" id="composer">
       <textarea id="input" rows="1" enterkeyhint="send"
         placeholder="اكتب سؤالك…" data-i18n-ph="placeholder" autocomplete="off"></textarea>
-      <button class="mic" id="mic" type="button" aria-label="سؤال بالصوت" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="9" y="2" width="6" height="12" rx="3"/>
-          <path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>
-        </svg>
-      </button>
       <button class="send" id="send" type="submit" disabled aria-label="إرسال">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -226,25 +219,6 @@
       </button>
     </form>
 
-    <div class="recorder" id="recorder" hidden>
-      <button class="rec-cancel" id="recCancel" type="button" aria-label="إلغاء">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-      <span class="rec-dot" aria-hidden="true"></span>
-      <span class="rec-time" id="recTime">0:00</span>
-      <div class="rec-level" id="recLevel" aria-hidden="true">
-        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-      </div>
-      <span class="rec-hint" id="recHint">بتسجّل…</span>
-      <button class="rec-done" id="recDone" type="button" aria-label="تم">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 12l6 6L20 6"/>
-        </svg>
-      </button>
-    </div>
     <p class="foot" id="foot" data-i18n="foot">مفيد بيشتغل من غير إنترنت · الإجابات من كتاب المنهج نفسه</p>
   </div>
 

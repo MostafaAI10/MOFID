@@ -8,12 +8,9 @@
  */
 const MofidAPI = (() => {
   const CONFIG = {
-    // Set to "live" once the backend is available.
-    MODE: "live", // "mock" | "live" (DONE)
-    // Empty string means same origin. Set an absolute URL only when the app
-    // is served from somewhere other than the API.
-    BASE_URL: "http://localhost:8082",   //(DONE)
-    TIMEOUT_MS: 60000, // a quantized model on modest hardware can be slow
+    MODE: "live", // "mock" | "live"
+    BASE_URL: "http://localhost:8082", // empty string means same origin
+    TIMEOUT_MS: 60000,
   };
 
   // ---------------------------------------------------------------- utils
@@ -269,40 +266,6 @@ const MofidAPI = (() => {
       if (!res.ok) throw new Error(`health check failed (${res.status})`);
       return { ...(await res.json()), mode: "live" };
     },
-    /* Voice input. The browser SpeechRecognition API is not used: it uploads
-       audio to a cloud service, which would break the offline guarantee. Audio
-       is posted to the local server for on-device transcription. In mock mode
-       the recording path runs but the text returned is a placeholder. */
-    get canTranscribe() {
-      return typeof MediaRecorder !== "undefined"
-        && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    },
-
-    /* True while no transcription backend exists. The interface must surface
-       this: mock mode returns a sample question, not what the microphone
-       captured. */
-    get transcribeIsMock() {
-      return CONFIG.MODE !== "live";
-    },
-
-    async transcribe(blob, lang) {
-      if (CONFIG.MODE !== "live") {
-        await new Promise((r) => setTimeout(r, 700));
-        const pool = await this.suggestions(lang);
-        return { text: pool[Math.floor(Math.random() * pool.length)], mock: true };
-      }
-      const form = new FormData();
-      form.append("audio", blob, "question.webm");
-      form.append("lang", lang);
-      const res = await fetch(`${CONFIG.BASE_URL}/transcribe`, {
-        method: "POST",
-        body: form,
-      });
-      if (!res.ok) throw new Error(`transcription failed (${res.status})`);
-      const data = await res.json();
-      return { text: (data.text || "").trim() };
-    },
-
     /** What the box actually holds, for the header context strip. */
     async meta() {
       const chunks = await loadChunks();
