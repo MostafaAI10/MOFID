@@ -9,6 +9,7 @@ import time
 
 import requests
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from backend import config
@@ -16,6 +17,16 @@ from backend.rag import collection, index_chunks, retrieve_context
 
 app = FastAPI(title="Mofid API")
 
+
+# The webapp is served from a different origin than this API during local
+# dev/testing (static files vs uvicorn). Restrict to known origins once this
+# moves beyond local testing.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class AskRequest(BaseModel):
     question: str
