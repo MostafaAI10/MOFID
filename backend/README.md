@@ -1,6 +1,5 @@
 # Mofid backend
 
-Real, runnable version of what `MOFID_Model_v02.ipynb` prototypes in Colab.
 Endpoint shapes here follow `/API_CONTRACT.md` at the repo root exactly.
 
 ## Setup (in order)
