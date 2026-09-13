@@ -88,6 +88,9 @@ anyway; useful for us and cheap to keep.
 Used by the teacher dashboard (Momen, workstream F) to add or update
 curriculum chunks and re-index them. Not called by the student webapp.
 
+**Requires auth** — see the Dashboard section below. Send
+`Authorization: Bearer <token>`.
+
 ### Request
 
 ```json
@@ -116,6 +119,150 @@ Same chunk schema as `content/physics_grade12.json` — `id`, `subject`,
 
 ---
 
+## Dashboard endpoints (Momen, workstream F)
+
+Everything below is new surface for the teacher dashboard. None of it is
+called by the student webapp — `webapp/api.js` never changes because of this
+section.
+
+### `POST /auth/login`
+
+```json
+{ "username": "teacher", "password": "..." }
+```
+
+Response — `200`:
+
+```json
+{ "token": "..." }
+```
+
+Response — `401` on bad credentials: `{"detail": "invalid credentials"}`.
+
+One shared teacher account is fine for MVP; the account is seeded server-side
+(not self-registered). Password stored as a hash, never plaintext.
+
+### `POST /auth/logout`
+
+`Authorization: Bearer <token>` required. `200` with an empty body on
+success, invalidates the token immediately.
+
+### Auth on every endpoint below
+
+Every `/content/*`, `/analytics/*`, and `/upload_content` request requires
+`Authorization: Bearer <token>`. Missing or invalid token → `401`
+`{"detail": "unauthorized"}`.
+
+### `GET /content`
+
+List indexed chunks for the content management table.
+
+Query params: `page` (int, default `1`), `page_size` (int, default `50`).
+
+Response — `200`:
+
+```json
+{
+  "chunks": [
+    {
+      "id": "phy_g12_ch5_sec1",
+      "subject": "الفيزياء",
+      "grade": "12",
+      "chapter": "...",
+      "section": "...",
+      "text": "..."
+    }
+  ],
+  "total": 96,
+  "page": 1,
+  "page_size": 50
+}
+```
+
+### `PUT /content/{id}`
+
+Edit a single chunk's text or metadata in place, then re-embed it.
+
+Request body — same shape as one chunk in `/upload_content`, `id` in the
+body must match the URL and is not itself changeable via this endpoint
+(delete + re-add with a new id if the id itself needs to change):
+
+```json
+{
+  "id": "phy_g12_ch5_sec1",
+  "subject": "الفيزياء",
+  "grade": "12",
+  "chapter": "...",
+  "section": "...",
+  "text": "updated text..."
+}
+```
+
+Response — `200`: `{"updated": true}`. Response — `404` if the id doesn't
+exist: `{"detail": "chunk not found"}`.
+
+### `DELETE /content/{id}`
+
+Response — `200`: `{"deleted": true}`. Response — `404` if the id doesn't
+exist.
+
+### `POST /content/reindex`
+
+Rebuilds embeddings for every chunk currently in the collection. For use
+after bulk edits, or if the embedding model ever changes.
+
+Response — `200`: `{"reindexed": 96}`.
+
+### `GET /analytics/faq`
+
+Query params: `days` (int, default `7`).
+
+Response — `200`:
+
+```json
+{
+  "period_days": 7,
+  "top_questions": [
+    { "question": "يعني إيه فيزياء كلاسيكية؟", "count": 14 }
+  ]
+}
+```
+
+Questions are grouped by exact text match for MVP — no fuzzy clustering of
+near-duplicate phrasings yet (that's the Phase 2
+`/analytics/misconceptions` work below).
+
+### `GET /analytics/usage`
+
+Response — `200`:
+
+```json
+{
+  "questions_today": 42,
+  "questions_this_week": 210,
+  "refusal_rate": 0.12,
+  "avg_latency_ms": 780
+}
+```
+
+`refusal_rate` is the fraction of questions in the last 7 days where
+`in_curriculum` was `false`.
+
+### `GET /analytics/misconceptions` — Phase 2, not MVP
+
+Not implemented for the hackathon demo. Placeholder so the shape is agreed
+in advance:
+
+```json
+{
+  "clusters": [
+    { "representative_question": "...", "similar_count": 6, "chunk_ids_considered": ["..."] }
+  ]
+}
+```
+
+---
+
 ## Internal / not part of this contract
 
 - `GET /debug/chunk/{chunk_id}`: dev-only inspection endpoint used while
@@ -134,3 +281,6 @@ Same chunk schema as `content/physics_grade12.json` — `id`, `subject`,
       CORS from the webapp origin.
 - [ ] Answer quality, which needs the real model rather than the retrieval
       layer alone.
+- [ ] Dashboard endpoints above are a proposed contract, not yet built or
+      verified — Momen to build backend + frontend against this, flag
+      anything that needs to change before locking further.
