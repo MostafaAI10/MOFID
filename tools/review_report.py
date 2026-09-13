@@ -1,15 +1,6 @@
 #!/usr/bin/env python3
 """
-Mofid - rank draft chunks by how much human attention they need (Workstream D).
-
-The chunks produced from an OCR'd book are not uniformly good: some come out
-clean, others have figure-caption text spliced into a sentence, or physics
-notation (E1, E2, subscripts) destroyed by the OCR. Reviewing all of them with
-equal care wastes time on the ones that are already fine.
-
-This reads a chunk file and writes a report ordered worst-first, so review time
-goes where it is actually needed. It never modifies the chunk file, and it does
-not add fields - the schema stays at the guide's 6 fields.
+Rank draft chunks worst-first by likely OCR damage, for human review.
 
 Usage:
     python tools/review_report.py content/physics_grade12.json -o work/review.txt
@@ -22,9 +13,7 @@ from pathlib import Path
 
 ARABIC = re.compile(r"[؀-ۿ]")
 LATIN_TOKEN = re.compile(r"\b[A-Za-z][A-Za-z'’]*\b")
-# Characters that are neither Arabic, Latin, digits, nor ordinary punctuation
-# Physics notation is expected text, not noise: super/subscripts, Greek symbols,
-# and the maths operators an equation written in plain text needs.
+# Characters outside Arabic, Latin, digits, punctuation and physics notation
 NOTATION = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺₀₁₂₃₄₅₆₇₈₉αβγδθλμνπρσφωΦΩΔΣ°Å−±≈≤≥<>·…"
 NOISE_CHAR = re.compile(
     r"[^\s؀-ۿA-Za-z0-9٠-٩.,;:!؟،؛\-–—()\[\]/×=+%'\"”“’‘" + NOTATION + "]")
@@ -49,14 +38,7 @@ KNOWN_SHORT = {
 
 
 def junk_latin(text):
-    """Latin tokens that look like OCR debris rather than real terms.
-
-    Short Latin cannot be told apart from OCR debris by shape alone - "Pfund"
-    and "Gtis" look identical to a rule. So the tool keeps an explicit list of
-    the short terms this textbook actually uses (units, quantum numbers, shell
-    labels, acronyms, names) and treats anything else short as suspect. A new
-    real term will be flagged once; add it to KNOWN_SHORT.
-    """
+    """Count short Latin tokens not in KNOWN_SHORT, i.e. likely OCR debris."""
     bad = 0
     for token in LATIN_TOKEN.findall(text):
         if token in KNOWN_SHORT or len(token) >= 6:
@@ -98,7 +80,6 @@ def score(chunk):
         reasons.append(f"{stray} loose numbers - figure axis labels?")
 
     # Single stray letters are almost always broken notation
-    # An isolated letter next to "=" or a digit is notation, not damage
     singles = len(re.findall(r"(?<=\s)[A-Za-z](?![\s]*[=₀-₉0-9])(?=[\s,.;])", text))
     if singles >= 4:
         points += 2

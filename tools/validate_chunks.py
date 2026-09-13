@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
 """
-Mofid - curriculum chunk validator (Workstream D).
-
-Checks a digitized curriculum JSON file against the checklist in section 7 of
-the Mofid Content Guide. The schema is exactly the 6 fields the guide defines:
-id, subject, grade, chapter, section, text. Anything else is flagged as an extra.
+Validate a curriculum chunk file against the 6-field schema and content rules.
 
 Usage:
-    python tools/validate_chunks.py content/physics_grade12.json
-    python tools/validate_chunks.py content/physics_grade12.json --gold eval/gold_set.json
+    python tools/validate_chunks.py content/physics_grade12.json [--gold eval/gold_set.json]
 
-Exit code is 0 when there are no errors, 1 otherwise. Warnings never fail.
+Exits 1 on errors; warnings do not fail.
 """
 import argparse
 import json

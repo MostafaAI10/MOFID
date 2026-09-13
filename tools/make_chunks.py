@@ -1,24 +1,13 @@
 #!/usr/bin/env python3
 """
-Mofid - turn OCR'd textbook text into draft chunks (Workstream D).
+Turn page-marked textbook text into draft chunks in the 6-field schema:
+id, subject, grade, chapter, section, text.
 
-Reads the "=== PAGE n ===" text produced by extract_pdf.py and emits a JSON file
-in the exact 6-field schema from the content guide:
-    id, subject, grade, chapter, section, text
-
-Everything it writes comes from the text file itself - chapter and section names
-are read off the page, never supplied from outside. Where it cannot read a
-section heading it writes the chapter's own name into `section`, so the field is
-never blank and the gap is visible to the human reviewer.
-
-This produces a DRAFT. Chunk boundaries, section names and OCR errors all need
-human review afterwards; the point is to remove the mechanical work, not the
-judgement.
+Chapter and section names are read from the text itself. Output is a draft for
+human review.
 
 Usage:
-    python tools/make_chunks.py work/modern_physics_ch5_7.txt \
-        --subject "الفيزياء" --grade 12 --prefix phy \
-        -o content/physics_grade12.json
+    python tools/make_chunks.py work/modern_physics_ch5_7.txt         --subject "الفيزياء" --grade 12 --prefix phy -o content/physics_grade12.json
 """
 import argparse
 import json
@@ -58,9 +47,7 @@ FIGURE_REF = re.compile(r"[\(\[]\s*شكل[^\)\]]{0,30}[\)\]]")
 
 WORDS_MIN, WORDS_TARGET, WORDS_MAX = 50, 110, 150
 
-# Worked examples and exercise blocks: the OCR destroys their notation, and a
-# grounded-explanation tutor does not retrieve them anyway. They are set aside
-# in a separate file rather than dropped, so the gap stays visible (guide s.5).
+# Worked examples and exercises go to a separate file, not the chunks
 EXERCISE_OPENER = re.compile(r"^\s*(مثال|تمارين|أسئلة|اسئلة|تمرين|مسائل)\b")
 ARABIC_WORD = re.compile(r"^[؀-ۿ]{2,}$")
 

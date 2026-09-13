@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
 """
-Mofid - textbook PDF to plain text, with page markers (Workstream D).
+Textbook PDF to plain text, one "=== PAGE n ===" marker per page.
 
-Writes one text file where every page is preceded by a "=== PAGE n ===" marker,
-so the page number for each chunk's `page` field is always in front of you while
-you are chunking. Pages that produce no text are scanned images and are reported
-at the end - those need OCR before they can be used.
-
-Arabic presentation forms are normalised to normal Arabic letters (NFKC), which
-is the single most common source of garbled Arabic when extracting from PDFs.
+Arabic presentation forms are normalised (NFKC). Pages with no extractable
+text are listed at the end.
 
 Usage:
-    python tools/extract_pdf.py textbook.pdf -o work/science_g9.txt
-    python tools/extract_pdf.py textbook.pdf -o work/science_g9.txt --pages 10-45
-
-Requires pypdf (pip install pypdf).
+    python tools/extract_pdf.py textbook.pdf -o work/physics_g12.txt [--pages 10-45] [--ocr]
 """
 import argparse
 import re

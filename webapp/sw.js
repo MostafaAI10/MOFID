@@ -1,6 +1,5 @@
-/* Mofid service worker - the app must survive with no network at all.
-   Bump CACHE when any shell file changes, or clients keep the old copy. */
-const CACHE = "mofid-v27";
+/* Mofid service worker. Bump CACHE whenever a shell file changes. */
+const CACHE = "mofid-v29";
 
 const SHELL = [
   ".", "index.html", "styles.css", "app.js", "api.js",
@@ -32,11 +31,9 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(request.url);
   if (url.origin !== location.origin) return;
 
-  // Shell and data: cache first, so a cold start with no network still works.
   e.respondWith(
     caches.match(request).then((hit) => {
       if (hit) {
-        // Refresh in the background when a network happens to be there
         fetch(request).then((res) => {
           if (res && res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
         }).catch(() => {});

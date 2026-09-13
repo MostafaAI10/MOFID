@@ -1,19 +1,9 @@
 #!/usr/bin/env python3
 """
-Mofid - find the textbook page a chunk came from, and render it (Workstream D).
-
-A chunk carries no page number (the schema is the guide's 6 fields), but the OCR
-text file still has "=== PAGE n ===" markers. This matches a chunk's text back
-against that file to recover its page, then optionally renders that page as an
-image so the original can be read while correcting OCR damage.
-
-Correcting against the printed page is the point: a Mofid answer cites a chapter,
-and a student will compare it with their own book. Guessing at damaged text can
-drift from what the book actually says; reading the page cannot.
+Find the textbook page a chunk came from, and optionally render it as an image.
 
 Usage:
-    python tools/find_source.py phy_g12_ch5_sec0_29
-    python tools/find_source.py phy_g12_ch5_sec0_29 --render
+    python tools/find_source.py phy_g12_ch5_sec2 [--render]
 """
 import argparse
 import json

@@ -1,6 +1,4 @@
-/* Mofid - student app
-   Palette is the brand sheet: #000000 #222121 #424040 #ffffff #b8cee1.
-   Neutrals between those are derived; no colour outside that family. */
+/* Mofid - student app. Brand palette: #000000 #222121 #424040 #ffffff #b8cee1 */
 
 :root {
   color-scheme: light;
@@ -11,9 +9,9 @@
   --ink: #000000;
   --ink-2: #222121;
   --ink-3: #3a3838;
-  --muted: #575c63;          /* 7.0:1 on paper - readable, not decorative */
+  --muted: #575c63;
   --accent: #b8cee1;
-  --accent-ink: #2b4a61;     /* darkened accent, for text that must stay legible */
+  --accent-ink: #2b4a61;
   --accent-soft: #e8f0f7;
   --shadow: 0 1px 2px rgba(16, 20, 26, 0.05), 0 6px 18px rgba(16, 20, 26, 0.05);
 
@@ -50,8 +48,6 @@
 
 * { box-sizing: border-box; }
 
-/* A `display` declaration outranks the user-agent rule for [hidden]. Settled
-   once here rather than per component. */
 [hidden] { display: none !important; }
 
 html, body {
@@ -71,15 +67,15 @@ body {
 
 button { font: inherit; color: inherit; cursor: pointer; }
 
-/* ------------------------------------------------------------------ shell */
+/* --- shell --- */
 .app {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 100dvh;  /* dvh tracks the mobile URL bar; 100% is the fallback */
+  min-height: 100dvh;
 }
 
-/* ----------------------------------------------------------------- header */
+/* --- header --- */
 .top {
   display: flex;
   align-items: center;
@@ -114,7 +110,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .top .spacer { flex: 1; }
 
-/* logo mark - same geometry as icons/ */
 .mark {
   display: block;
   flex: none;
@@ -122,8 +117,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   height: 30px;
   overflow: visible;
 }
-/* The three brand tones are all near-black and merge at small sizes. A
-   hairline in the page colour separates them. */
 .mark path { stroke: var(--paper); stroke-width: 2.2; paint-order: stroke fill; }
 .mark .s1 { fill: var(--sheet-1); }
 .mark .s2 { fill: var(--sheet-2); }
@@ -174,7 +167,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .ctrl:hover { background: var(--surface-2); color: var(--ink); }
 .ctrl:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 
-/* ------------------------------------------------------------------ chat */
+/* --- chat --- */
 .scroll {
   flex: 1;
   overflow-y: auto;
@@ -189,8 +182,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 
 /* empty state */
-/* Landing centres the opening panel; chat aligns the thread to the top. Only
-   the column changes - the composer is fixed. */
 .app[data-mode="landing"] .col {
   min-height: 100%;
   display: flex;
@@ -379,7 +370,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .meta { margin-top: 12px; color: var(--muted); font-size: 12px; }
 
-/* --------------------------------------------------------------- composer */
+/* --- composer --- */
 .dock {
   border-block-start: 1px solid var(--line);
   background: var(--paper);
@@ -445,17 +436,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
   text-align: center;
 }
 
-/* ---------------------------------------------------------------- motion */
+/* --- reduced motion --- */
 @media (prefers-reduced-motion: reduce) {
-  /* Shortening the duration is not enough: an animation with `both` fill and a
-     delay holds its start state throughout the delay, leaving staggered content
-     invisible. Remove the animations entirely. */
   *, *::before, *::after {
     animation: none !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  /* the shimmer paints text with a moving gradient; restore plain text */
   .thinking span {
     background: none;
     -webkit-background-clip: border-box;
@@ -470,7 +457,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   body { font-size: 15px; }
 }
 
-/* shown when the app is opened over file:// */
 .cmd {
   margin: 10px 0 8px;
   padding: 10px 12px;
@@ -485,10 +471,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   overflow-x: auto;
 }
 
-/* -------------------------------------------------------------- motion --
-   Presentation only. The reduced-motion block above disables all of it. */
+/* --- motion --- */
 
-/* caret shown while the answer is being revealed */
 .msg.bot .body.typing::after {
   content: "";
   display: inline-block;
@@ -501,13 +485,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 @keyframes caret { 50% { opacity: 0; } }
 
-/* citations and timing appear after the answer finishes rendering */
 .reveal { animation: reveal 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
 @keyframes reveal {
   from { opacity: 0; transform: translateY(9px); }
 }
 
-/* citation body opens by growing, not by snapping */
 .cite .quote-wrap {
   display: grid;
   grid-template-rows: 0fr;
@@ -574,12 +556,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
   70%, 100% { opacity: 0; transform: scale(1.5); }
 }
 
-/* ------------------------------------------------------------- opening --
-   The three sheets converge into the mark, then the page settles around it. */
+/* --- opening --- */
 
 :root { --ease: cubic-bezier(0.2, 0.85, 0.25, 1); }
 
-/* SVG transforms resolve against the element box, not the viewBox origin */
 .mark path { transform-box: fill-box; transform-origin: center; }
 
 .mark.intro .s1 { animation: sheet1 0.8s var(--ease) 0.05s both; }
@@ -596,7 +576,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   from { opacity: 0; transform: translate(115%, -45%) rotate(16deg); }
 }
 
-/* wordmark entrance, after the sheets have settled */
 .brand h1 {
   animation: wordmark 0.6s var(--ease) 0.5s both;
   overflow: hidden;
@@ -610,7 +589,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   from { opacity: 0; letter-spacing: 0.5em; transform: translateX(6px); }
 }
 
-/* chrome settles around the mark */
 .top { animation: topIn 0.62s var(--ease) both; }
 @keyframes topIn { from { opacity: 0; transform: translateY(-100%); } }
 
@@ -622,17 +600,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .dock { animation: dockIn 0.66s var(--ease) 0.18s both; }
 @keyframes dockIn { from { opacity: 0; transform: translateY(100%); } }
 
-/* chips wait for the copy above them */
 .chip { animation-delay: calc(var(--i, 0) * 70ms + 0.85s); }
 
-/* a fingerprint of the same motion: the header mark replays on click */
 .brand { cursor: default; }
 .brand .mark { cursor: pointer; }
 
-/* ------------------------------------------------------------- context --
-   Centred in the header: what this box actually holds. It doubles as the
-   activity indicator, so the student can see the search is running against a
-   known, finite set of material rather than the open web. */
+/* --- context --- */
 
 .context {
   position: absolute;
@@ -663,7 +636,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   text-overflow: ellipsis;
 }
 
-/* while a question is in flight the strip says so and the sheets riffle */
 .app[data-busy="true"] .context {
   border-color: var(--accent);
   color: var(--accent-ink);
@@ -676,7 +648,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   50% { opacity: 0.25; }
 }
 
-/* a hairline that fills while the answer is being found */
 .progress {
   position: absolute;
   inset-inline: 0;
@@ -744,11 +715,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .to-bottom svg { width: 17px; height: 17px; }
 .scroll { position: relative; }
 
-/* header elevation once the thread scrolls under it */
 .app[data-scrolled="true"] .top { box-shadow: 0 1px 12px rgba(16, 20, 26, 0.07); }
 :root[data-theme="dark"] .app[data-scrolled="true"] .top { box-shadow: 0 1px 14px rgba(0, 0, 0, 0.6); }
 
-/* inline citation markers - the source stays attached to the claim */
 .msg.bot .body .para { margin: 0 0 1.15em; }
 .msg.bot .body .para:last-child { margin-bottom: 0; }
 
@@ -776,9 +745,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .cite.flash { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .cite { transition: border-color 0.2s, box-shadow 0.2s; }
 
-/* -------------------------------------------------------------- picker --
-   Year first, then the subjects taught in it. Both steps are built from the
-   content, so the same markup shows one card today and a full grid later. */
+/* --- picker --- */
 
 .picker {
   display: flex;
@@ -863,16 +830,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .cards { grid-template-columns: 1fr; max-width: 320px; }
 }
 
-/* the context strip is a control only when there is something to change */
 .context { cursor: pointer; font: inherit; font-size: 12.5px; }
 .context:disabled { cursor: default; }
 .context:not(:disabled):hover { border-color: var(--accent); color: var(--ink-2); }
 .context:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 
-/* --------------------------------------------------------------- scene --
-   Backdrop for the landing: a night horizon over Giza. Entirely CSS and inline
-   SVG - nothing is fetched, so it behaves identically with the network off.
-   It fades out once a conversation starts. */
+/* --- scene --- */
 
 .scene {
   position: absolute;
@@ -896,9 +859,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   aspect-ratio: 1200 / 300;
 }
 
-/* ---- sky ---------------------------------------------------------------- */
-/* Four-point glints, each on its own rhythm. Kept faint between flashes
-   rather than switched off. */
+/* --- sky --- */
 .scene .glint {
   fill: var(--accent-ink);
   opacity: 0.25;
@@ -923,7 +884,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .scene .moon, .scene .moon-glow { animation: moonBreathe 18s ease-in-out infinite alternate; }
 @keyframes moonBreathe { to { opacity: 0.55; } }
 
-/* ---- ground ------------------------------------------------------------- */
+/* --- ground --- */
 .scene .haze { fill: url(#haze); color: var(--accent); opacity: 0.22; }
 :root[data-theme="dark"] .scene .haze { opacity: 0.14; }
 
@@ -943,8 +904,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   stroke: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
-/* ---- pyramids ----------------------------------------------------------- */
-/* Two faces per pyramid, one lit and one in shadow. */
+/* --- pyramids --- */
 .scene .face { stroke: none; }
 .scene .face.lit { fill: color-mix(in srgb, var(--accent) 34%, transparent); }
 .scene .face.dim { fill: color-mix(in srgb, var(--accent-ink) 20%, transparent); }
@@ -967,7 +927,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 :root[data-theme="dark"] .scene .edge { stroke: color-mix(in srgb, var(--accent) 62%, transparent); }
 :root[data-theme="dark"] .scene .ridge { stroke: color-mix(in srgb, var(--accent) 30%, transparent); }
 
-/* outlines trace on their own offsets */
 .scene .edge  { stroke-dasharray: 520; animation: trace 26s linear infinite; }
 .scene .ridge { stroke-dasharray: 200; animation: trace 26s linear infinite; }
 .scene .pyr .edge, .scene .pyr .ridge { animation-delay: calc(var(--n) * -8.6s); }
@@ -978,7 +937,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   100% { stroke-dashoffset: -520; }
 }
 
-/* ---- palms and birds ---------------------------------------------------- */
+/* --- palms and birds --- */
 .scene .trunk, .scene .frond, .scene .wing {
   fill: none;
   stroke: color-mix(in srgb, var(--accent-ink) 58%, transparent);
@@ -1002,8 +961,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .scene .trunk { stroke-dasharray: 70; animation: trace 22s linear infinite 2.4s; }
 
-/* The outer group drifts; the inner keeps the bird's placement, so the SVG
-   transform attribute and the CSS animation do not conflict. */
 .scene .flock {
   animation: drift 21s linear var(--bd, 0s) infinite;
 }
@@ -1025,7 +982,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   50%      { transform: rotate(-4deg) scaleY(0.28); }
 }
 
-/* ---- light running along the horizon ------------------------------------ */
+/* --- sweep --- */
 .scene .sweep {
   fill: none;
   stroke: url(#sweep);
@@ -1041,7 +998,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   to   { stroke-dashoffset: -320; }
 }
 
-/* ---- the wash of light behind it all ------------------------------------ */
+/* --- glow --- */
 .scene .glow {
   position: absolute;
   left: 50%;

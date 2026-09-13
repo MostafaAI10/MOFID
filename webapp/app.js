@@ -11,70 +11,71 @@
     toBottom: $("toBottom"),
     statusText: $("statusText"), lang: $("lang"), theme: $("theme"), foot: $("foot") };
 
-  // --------------------------------------------------------------- strings
+  // --- strings ---
   const T = {
     ar: {
       dir: "rtl", other: "EN", title: "مفيد",
-      heroTitle: "اسأل عن أي حاجة في منهجك",
-      heroSub: "كل إجابة بترجع من كتاب المنهج نفسه، وهتلاقي تحتها الفصل والدرس اللي جات منه. ولو السؤال مش في منهجك، هقولك بصراحة.",
+      heroTitle: "اسأل عن أي موضوع في منهجك",
+      heroSub: "كل إجابة مأخوذة من كتاب المنهج، ويظهر أسفلها الفصل والدرس. وإذا كان السؤال خارج المنهج، يوضّح مفيد ذلك.",
       placeholder: "اكتب سؤالك…",
-      foot: "مفيد بيشتغل من غير إنترنت · الإجابات من كتاب المنهج نفسه",
-      thinking: "بدور في المنهج…",
+      foot: "مفيد يعمل دون إنترنت · الإجابات من كتاب المنهج",
+      thinking: "جارٍ البحث في المنهج…",
       bot: "مفيد",
       source: "المصدر",
       sources: "المصادر",
-      notFoundTitle: "ده مش في منهجك",
-      notFoundBody: "مالقيتش الإجابة في كتاب المنهج، ومش هخمّن. اسأل مدرسك عن الموضوع ده.",
-      offline: "بدون إنترنت",
+      notFoundTitle: "هذا السؤال خارج المنهج",
+      notFoundBody: "لم يُعثر على إجابة في كتاب المنهج. يُرجى الرجوع إلى المعلم في هذا الموضوع.",
+      offline: "غير متصل",
       online: "متصل بالشبكة",
-      down: "الخادم مش شغال",
-      ready: "جاهز",
-      errTitle: "في مشكلة",
-      errBody: "مقدرتش أوصل للخادم. اتأكدي إنك متصلة بشبكة مفيد وجربي تاني.",
-      fileTitle: "التطبيق محتاج يتفتح من سيرفر",
-      fileBody: "انتي فاتحة الملف مباشرة (file://)، والمتصفح بيمنع تحميل ملفات المنهج كده. شغّلي السيرفر المحلي وافتحي العنوان اللي هيطلع:",
-      took: (ms) => `الرد في ${(ms / 1000).toFixed(1)} ثانية`,
+      down: "الخادم غير متاح",
+      errTitle: "تعذّر الاتصال",
+      errBody: "تعذّر الوصول إلى الخادم. يُرجى التأكد من الاتصال بشبكة مفيد ثم إعادة المحاولة.",
+      fileTitle: "يجب تشغيل التطبيق من خادم",
+      fileBody: "التطبيق مفتوح مباشرة من ملف (file://)، ولا يسمح المتصفح بتحميل ملفات المنهج بهذه الطريقة. يُرجى تشغيل الخادم المحلي وفتح العنوان التالي:",
+      took: (ms) => `زمن الرد ${(ms / 1000).toFixed(1)} ثانية`,
       themeLabel: "تبديل الوضع الليلي",
       sendLabel: "إرسال",
+      toBottom: "الانتقال إلى آخر المحادثة",
       newChat: "محادثة جديدة",
       grades: { "7": "الأول الإعدادي", "8": "الثاني الإعدادي", "9": "الثالث الإعدادي",
                 "10": "الأول الثانوي", "11": "الثاني الثانوي", "12": "الثالث الثانوي" },
       subjectsLabel: (n) => `${n} مواد`,
       gradesLabel: (n) => `${n} صفوف`,
-      chaptersLabel: (n) => (n === 1 ? "فصل واحد" : n === 2 ? "فصلين" : `${n} فصول`),
-      scopeSearching: (m) => `بدور في ${m.chunks} مقطع من المنهج…`,
-      copy: "نسخ", copied: "اتنسخ",
+      chaptersLabel: (n) => (n === 1 ? "فصل واحد" : n === 2 ? "فصلان" : `${n} فصول`),
+      scopeSearching: (m) => `جارٍ البحث في مقاطع المنهج (${m.chunks})…`,
+      copy: "نسخ", copied: "تم النسخ",
       changeCourse: "تغيير الصف أو المادة",
       greetMorning: "صباح الخير",
       greetAfternoon: "مساء الخير",
       greetEvening: "مساء الخير",
-      askGrade: "انت في أنهي سنة؟",
-      askSubject: "عايز تذاكر إيه النهاردة؟",
-      readyToAsk: "اسأل عن أي حاجة في منهجك",
+      askGrade: "اختر الصف الدراسي",
+      askSubject: "اختر المادة",
+      readyToAsk: "اسأل عن أي موضوع في منهجك",
+      notFoundIcon: "؟",
     },
     en: {
       dir: "ltr", other: "ع", title: "Mofid",
       heroTitle: "Ask anything from your curriculum",
-      heroSub: "Every answer comes from the textbook itself, with the chapter and lesson it came from shown underneath. If it isn't in your curriculum, I'll say so.",
+      heroSub: "Every answer comes from the textbook, with its chapter and lesson shown underneath. If a question is outside the curriculum, Mofid says so.",
       placeholder: "Type your question…",
-      foot: "Mofid runs with no internet · Answers come from the textbook itself",
+      foot: "Mofid works without internet · Answers come from the textbook",
       thinking: "Searching the curriculum…",
       bot: "Mofid",
       source: "Source",
       sources: "Sources",
-      notFoundTitle: "This isn't in your curriculum",
-      notFoundBody: "I couldn't find this in the textbook, and I won't guess. Ask your teacher about it.",
+      notFoundTitle: "This question is outside the curriculum",
+      notFoundBody: "No answer was found in the textbook. Please ask your teacher about this topic.",
       offline: "No internet",
       online: "On network",
-      down: "Server unreachable",
-      ready: "Ready",
-      errTitle: "Something went wrong",
-      errBody: "I couldn't reach the server. Check you're connected to the Mofid network and try again.",
+      down: "Server unavailable",
+      errTitle: "Connection failed",
+      errBody: "The server could not be reached. Check the connection to the Mofid network and try again.",
       fileTitle: "This app needs to be served",
-      fileBody: "You opened the file directly (file://), and the browser blocks loading the curriculum that way. Start the local server and open the address it prints:",
+      fileBody: "The app was opened directly from a file (file://), and the browser blocks loading the curriculum that way. Start the local server and open this address:",
       took: (ms) => `answered in ${(ms / 1000).toFixed(1)}s`,
       themeLabel: "Toggle dark mode",
       sendLabel: "Send",
+      toBottom: "Jump to latest message",
       newChat: "New conversation",
       grades: { "7": "Grade 7", "8": "Grade 8", "9": "Grade 9",
                 "10": "Grade 10", "11": "Grade 11", "12": "Grade 12" },
@@ -87,9 +88,10 @@
       greetMorning: "Good morning",
       greetAfternoon: "Good afternoon",
       greetEvening: "Good evening",
-      askGrade: "Which year are you in?",
-      askSubject: "What would you like to study today?",
+      askGrade: "Choose your grade",
+      askSubject: "Choose a subject",
       readyToAsk: "Ask anything from your curriculum",
+      notFoundIcon: "?",
     },
   };
 
@@ -97,7 +99,7 @@
   let busy = false;
   const t = () => T[lang];
 
-  // ----------------------------------------------------------------- utils
+  // --- utils ---
   function node(tag, cls, text) {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -105,8 +107,6 @@
     return n;
   }
 
-  /* Textbook content is Arabic regardless of interface language, so nodes
-     holding it resolve their own direction instead of inheriting the page's. */
   function autoDir(n) {
     n.setAttribute("dir", "auto");
     return n;
@@ -114,8 +114,6 @@
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* Reveals the answer progressively. The response has already arrived in
-     full; true token streaming would require a streamed backend response. */
   function revealText(target, text) {
     if (reduceMotion) {
       target.textContent = text;
@@ -127,7 +125,6 @@
     target.classList.add("typing");
     return new Promise((resolve) => {
       const step = () => {
-        // several words per frame keeps long answers readable
         const budget = Math.max(2, Math.round(words.length / 90));
         for (let n = 0; n < budget && i < words.length; n++, i++) {
           target.append(words[i]);
@@ -150,8 +147,14 @@
   }
 
   function toBottom(force) {
-    if (!force && !nearBottom()) return; // do not scroll a reader away from their place
+    if (!force && !nearBottom()) return;
     requestAnimationFrame(() => { el.scroll.scrollTop = el.scroll.scrollHeight; });
+  }
+
+  function svgEl(tag, attrs = {}) {
+    const n = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    return n;
   }
 
   const MARK_PATHS = [
@@ -160,22 +163,75 @@
     "M46.1,23.1 L63.6,14.6 L63.6,69.1 L46.1,77.6 Z",
   ];
 
-  /** The logo mark, same geometry as icons/ - see webapp/README.md. */
-  function markEl(extraClass) {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("class", "mark" + (extraClass ? " " + extraClass : ""));
-    svg.setAttribute("viewBox", "22 14 43 70");
-    svg.setAttribute("aria-hidden", "true");
-    MARK_PATHS.forEach((d, i) => {
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.setAttribute("class", "s" + (i + 1));
-      path.setAttribute("d", d);
-      svg.append(path);
-    });
+  const fillMark = (svg) =>
+    MARK_PATHS.forEach((d, i) => svg.append(svgEl("path", { class: `s${i + 1}`, d })));
+
+  function markEl() {
+    const svg = svgEl("svg", { class: "mark", viewBox: "22 14 43 70", "aria-hidden": "true" });
+    fillMark(svg);
     return svg;
   }
 
-  // ------------------------------------------------------------- rendering
+  // [x, y, radius]
+  const STARS = [
+    [69.3, 117.3, 2.48], [828.2, 23.1, 4.03], [522.2, 66.5, 4.03], [478, 17.1, 2.17],
+    [135.1, 88.5, 3.1], [1149.9, 50.7, 2.48], [95.4, 155.9, 2.48], [625.6, 24.2, 4.03],
+    [95.2, 140.6, 3.1], [406, 91, 4.96], [117.2, 58.2, 4.03], [797.7, 19, 4.03],
+    [1059.3, 122.4, 2.79], [1136.5, 102.5, 2.17], [1029.5, 122.8, 4.03], [640.5, 77.6, 2.17],
+    [935.2, 138, 2.48], [1064.4, 147, 2.79], [322.8, 126.4, 3.1], [468.4, 119.8, 2.17],
+    [798.1, 38.5, 4.03], [495, 133.7, 3.1], [229.5, 137.9, 4.96], [293.4, 55.1, 2.79],
+    [466.3, 163.4, 2.48], [135.4, 11.7, 4.03], [604.2, 87.4, 2.17], [174.4, 59.5, 2.48],
+    [277.5, 96.9, 3.1], [41.9, 67.1, 2.79],
+  ];
+  // [left foot, apex x, apex y, ridge foot, right foot, base y]
+  const PYRAMIDS = [
+    [48, 178, 92, 216, 308, 246], [258, 368, 124, 400, 478, 248], [438, 508, 172, 530, 578, 250],
+  ];
+  // [x, y, scale, flap delay, drift delay]
+  const BIRDS = [[690, 108, 1, 0, 0], [742, 92, 0.78, 0.35, 1.4], [662, 86, 0.62, 0.7, 2.8]];
+
+  function drawScene() {
+    const svg = document.querySelector(".scene .horizon");
+    const r2 = (n) => +n.toFixed(2);
+
+    STARS.forEach(([x, y, r], i) => {
+      const k = r2(r * 0.17);
+      const [a, b, c, d] = [r2(x - r), r2(x - k), r2(x + k), r2(x + r)];
+      const [e, f, g, h] = [r2(y - r), r2(y - k), r2(y + k), r2(y + r)];
+      svg.insertBefore(svgEl("path", {
+        class: "glint",
+        style: `--d:${r2((i * 1.37) % 4.4)}s;--dur:${r2(2.8 + ((i * 0.91) % 3.7))}s`,
+        d: `M${x} ${e} Q${c} ${f} ${d} ${y} Q${c} ${g} ${x} ${h} Q${b} ${g} ${a} ${y} Q${b} ${f} ${x} ${e} Z`,
+      }), svg.querySelector(".moon-glow"));
+    });
+
+    PYRAMIDS.forEach(([l, ax, ay, rf, r, base], n) => {
+      const group = svgEl("g", { class: "pyr", style: `--n:${n}` });
+      group.append(
+        svgEl("path", { class: "face lit", d: `M${l} ${base} L${ax} ${ay} L${rf} ${base} Z` }),
+        svgEl("path", { class: "face dim", d: `M${ax} ${ay} L${r} ${base} L${rf} ${base} Z` }),
+        svgEl("path", { class: "edge", d: `M${l} ${base} L${ax} ${ay} L${r} ${base}` }),
+        svgEl("path", { class: "ridge", d: `M${ax} ${ay} L${rf} ${base}` }),
+      );
+      svg.insertBefore(group, svg.querySelector(".dune.near"));
+    });
+
+    BIRDS.forEach(([x, y, scale, flap, drift]) => {
+      const bird = svgEl("g", { class: "bird", transform: `translate(${x} ${y}) scale(${scale})` });
+      bird.append(
+        svgEl("path", { class: "wing left", d: "M0 0 c-7-8 -14-9 -19-6" }),
+        svgEl("path", { class: "wing right", d: "M0 0 c7-8 14-9 19-6" }),
+      );
+      const flock = svgEl("g", { class: "flock", style: `--fd:${flap}s;--bd:${drift}s` });
+      flock.append(bird);
+      svg.insertBefore(flock, svg.querySelector(".sweep"));
+    });
+
+    document.querySelectorAll("svg[data-mark]").forEach(fillMark);
+  }
+  drawScene();
+
+  // --- rendering ---
   function addUser(text, restoring) {
     const msg = node("div", "msg me");
     if (restoring) msg.style.animation = "none";
@@ -195,7 +251,6 @@
     return msg;
   }
 
-  /* Open the source card matching an inline marker. */
   function openCitation(msg, index) {
     const card = msg.querySelectorAll(".cite")[index];
     if (!card) return;
@@ -243,7 +298,7 @@
 
     if (res.in_curriculum === false) {
       const nf = node("div", "notfound");
-      nf.append(node("div", "icon", "؟"));
+      nf.append(node("div", "icon", t().notFoundIcon));
       const body = node("div");
       body.append(node("strong", null, t().notFoundTitle),
                   node("p", null, res.answer || t().notFoundBody));
@@ -263,9 +318,6 @@
         seen.add(key);
         return true;
       });
-      /* Number each paragraph with the source it came from. Applied only when
-         the paragraph count matches the source count, so the mapping is
-         unambiguous; otherwise the cards below carry the citation alone. */
       const paras = res.answer.split(/\n{2,}/).filter((x) => x.trim());
       if (cites.length && paras.length === cites.length && !restoring) {
         bodyEl.replaceChildren();
@@ -306,7 +358,7 @@
             copy.firstChild.textContent = t().copy;
             copy.classList.remove("done");
           }, 1600);
-        } catch { /* clipboard unavailable */ }
+        } catch {}
       });
       row.append(copy);
       msg.append(row);
@@ -341,9 +393,7 @@
     toBottom();
   }
 
-  // ------------------------------------------------------------------ send
-  /* Switches from the landing layout to the conversation layout. The composer
-     keeps its position so focus is never displaced. */
+  // --- send ---
   function enterChatMode() {
     pickerAnswered = true;
     if (el.app.dataset.mode === "chat") return;
@@ -386,8 +436,6 @@
     }
   }
 
-  /* Describes whatever the box happens to hold. One subject and one grade read
-     naturally; more than one collapses to a count rather than a long list. */
   function scopeLabel(m) {
     const s = t();
     const subject = m.subjects.length === 1 ? m.subjects[0]
@@ -400,8 +448,6 @@
 
   const SCOPE_KEY = "mofid.scope";
 
-  /* A two-step choice read from the content: a year, then a subject taught in
-     it. Neither is required; an unanswered step leaves the search unnarrowed. */
   let step = "grade";
 
   const SUBJECT_ICONS = {
@@ -458,8 +504,6 @@
     return b;
   }
 
-  /* True while the landing is still asking for a year or subject. Anything
-     that presumes an answer stays hidden until one is given. */
   function isPicking() {
     return el.app.dataset.mode !== "chat" && !pickerAnswered && courses.length > 0;
   }
@@ -479,7 +523,6 @@
     }
     el.context.disabled = false;
     if (pickerAnswered) {
-      // nothing left to ask
       el.picker.hidden = true;
       el.pickBack.hidden = true;
       el.hero.querySelector("h2").textContent = greeting();
@@ -500,7 +543,7 @@
           i,
           title: s.grades[g] || g,
           meta: subjects.length === 1 ? subjects[0].subject
-            : `${subjects.length} ${lang === "en" ? "subjects" : "مواد"}`,
+            : s.subjectsLabel(subjects.length),
           on: scope.grade === g,
           onClick: () => chooseGrade(g),
         }));
@@ -571,7 +614,7 @@
       } else {
         sessionStorage.removeItem(SCOPE_KEY);
       }
-    } catch { /* storage unavailable */ }
+    } catch {}
   }
 
   function buildCoursePicker() {
@@ -595,7 +638,6 @@
       return;
     }
     const s = t();
-    // Nothing narrowed - describe the whole box rather than a bare count.
     if (!scope.subject && !scope.grade) {
       el.contextText.textContent = scopeLabel(scopeMeta);
       el.context.title = s.changeCourse;
@@ -619,9 +661,8 @@
     paintContext();
   }
 
-  // ---------------------------------------------------------------- status
+  // --- status ---
   function paintStatus() {
-    // the device has no uplink by design, so offline is the expected state
     const offline = !navigator.onLine;
     el.status.dataset.state = offline ? "offline" : "online";
     el.statusText.textContent = offline ? t().offline : t().online;
@@ -630,7 +671,6 @@
   async function checkHealth() {
     try {
       const h = await MofidAPI.health();
-      if (navigator.onLine) el.statusText.textContent = t().ready;
       paintStatus();
       return h;
     } catch {
@@ -639,7 +679,7 @@
     }
   }
 
-  // ------------------------------------------------------------- language
+  // --- language ---
   function applyLang() {
     const s = t();
     document.documentElement.lang = lang;
@@ -652,6 +692,7 @@
     el.input.placeholder = s.placeholder;
     el.newChat.setAttribute("aria-label", s.newChat);
     el.newChat.title = s.newChat;
+    el.toBottom.setAttribute("aria-label", s.toBottom);
     el.foot.textContent = s.foot;
     document.querySelectorAll("[data-i18n]").forEach((n) => {
       const key = n.dataset.i18n;
@@ -663,7 +704,7 @@
     localStorage.setItem("mofid.lang", lang);
   }
 
-  // ----------------------------------------------------------------- theme
+  // --- theme ---
   function applyTheme(mode) {
     document.documentElement.dataset.theme = mode;
     document.querySelector('meta[name="theme-color"]')
@@ -671,7 +712,7 @@
     localStorage.setItem("mofid.theme", mode);
   }
 
-  // ------------------------------------------------------------- composer
+  // --- composer ---
   function autogrow() {
     el.input.style.height = "auto";
     el.input.style.height = Math.min(el.input.scrollHeight, 168) + "px";
@@ -681,8 +722,6 @@
     el.send.disabled = busy || !el.input.value.trim();
   }
 
-  /* Over file:// the browser blocks fetch against the local filesystem, and
-     the resulting failures look like network errors. State the real cause. */
   function showFileProtocolNotice() {
     el.hero.hidden = true;
     const msg = node("div", "msg bot");
@@ -704,17 +743,10 @@
     el.send.disabled = true;
   }
 
-  // ---------------------------------------------------------------- history
-  /* Kept in sessionStorage rather than localStorage: a reload should not lose
-     the thread, but closing the tab must clear it. These are shared classroom
-     devices. Nothing leaves the device and nothing is tied to a person. */
+  // --- history ---
   let scopeMeta = null;
   let courses = [];
-  // Either field may be null, which means "do not narrow on this one".
   let scope = { subject: null, grade: null };
-  /* The picker is a first-run question. Once answered - or bypassed by asking
-     directly - a new conversation keeps the same scope. It is reopened from the
-     header chip. */
   let pickerAnswered = false;
   const HISTORY_KEY = "mofid.thread";
   let history = [];
@@ -722,12 +754,12 @@
   function saveHistory() {
     try {
       sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(-40)));
-    } catch { /* storage unavailable */ }
+    } catch {}
   }
 
   function clearHistory() {
     history = [];
-    try { sessionStorage.removeItem(HISTORY_KEY); } catch { /* storage unavailable */ }
+    try { sessionStorage.removeItem(HISTORY_KEY); } catch {}
   }
 
   async function restoreHistory() {
@@ -748,7 +780,6 @@
     clearHistory();
     el.thread.replaceChildren();
     el.newChat.hidden = true;
-    // the thread was scrolled to its end; reset so the landing opens in view
     el.scroll.scrollTop = 0;
     el.toBottom.hidden = true;
     el.app.dataset.scrolled = "false";
@@ -763,11 +794,10 @@
     el.input.focus();
   }
 
-  // ------------------------------------------------------------------ init
+  // --- init ---
   async function loadChips() {
     try {
       const all = await MofidAPI.suggestions(lang);
-      // rotate the sample on each load
       const picks = all.sort(() => Math.random() - 0.5).slice(0, 4);
       el.chips.replaceChildren();
       picks.forEach((q, i) => {
@@ -777,12 +807,10 @@
         b.addEventListener("click", () => ask(q));
         el.chips.append(b);
       });
-    } catch { /* suggestions are optional */ }
+    } catch {}
   }
 
   function init() {
-    /* URL overrides for demos:
-       ?theme=light|dark  ?lang=ar|en  ?q=<question> */
     const params = new URLSearchParams(location.search);
 
     if (["ar", "en"].includes(params.get("lang"))) lang = params.get("lang");
@@ -830,12 +858,11 @@
       applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
     });
 
-    // clicking the mark replays the opening animation
     const headerMark = document.querySelector(".brand .mark");
     if (headerMark && !reduceMotion) {
       headerMark.addEventListener("click", () => {
         headerMark.classList.remove("intro");
-        void headerMark.offsetWidth; // force a reflow so the animation restarts
+        void headerMark.offsetWidth;
         headerMark.classList.add("intro");
       });
     }
@@ -861,7 +888,7 @@
             if (list.some((c) => c.grade === saved.grade)) scope.grade = saved.grade;
             if (scope.subject) pickerAnswered = true;
           }
-        } catch { /* no stored scope */ }
+        } catch {}
         buildCoursePicker();
         paintContext();
       })

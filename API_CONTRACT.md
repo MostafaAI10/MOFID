@@ -1,12 +1,12 @@
 # Mofid API Contract
 
 Single source of truth for the backend's HTTP surface. `webapp/api.js`
-(`liveAsk`, `health`) is written against this. If the backend's shape and
+(`ask`, `health`) is written against this. If the backend's shape and
 this file ever disagree, **this file wins and the backend gets fixed**
 the frontend is already built and tested against it.
 
 Base URL: same origin as the webapp by default (`webapp/api.js`
-`CONFIG.BASE_URL`), or an absolute URL if the API is hosted separately.
+`BASE_URL`), or an absolute URL if the API is hosted separately.
 
 ---
 
@@ -126,10 +126,10 @@ Same chunk schema as `content/physics_grade12.json` — `id`, `subject`,
 
 ## Status
 
-- [x] Contract drafted from `webapp/api.js`'s `liveAsk`/`health` and
+- [x] Contract drafted from `webapp/api.js`'s `ask`/`health` and
       `app.js`'s citation rendering (`.chapter` / `.section` access).
 - [x] Backend updated to match.
-- [x] Verified with `MODE: "live"` against the gold set: request and response
+- [x] Verified against the gold set: request and response
       shapes, citations against `content/physics_grade12.json`, refusals, and
       CORS from the webapp origin.
 - [ ] Answer quality, which needs the real model rather than the retrieval
