@@ -25,7 +25,7 @@ teacher accounts, misconception clustering, content versioning/history.
 
 ### 2.1 Data model
 
-Reuses the existing curriculum chunk schema exactly — no new shape to learn:
+Reuses the existing curriculum chunk schema exactly, no new shape to learn:
 
 ```json
 { "id": "...", "subject": "...", "grade": "...", "chapter": "...", "section": "...", "text": "..." }
@@ -34,15 +34,15 @@ Reuses the existing curriculum chunk schema exactly — no new shape to learn:
 Two new records, both stored in a local SQLite file (offline-friendly,
 zero-config, no new service to run):
 
-- **Question log** — `{id, question, timestamp, in_curriculum, matched_chunk_ids, lang}`. One row per `/ask` call. This is what the FAQ view reads from.
-- **Teacher account** — `{username, password_hash}`. One shared teacher account is fine for MVP; per-teacher accounts are Phase 2.
+- **Question log**: `{id, question, timestamp, in_curriculum, matched_chunk_ids, lang}`. One row per `/ask` call. This is what the FAQ view reads from.
+- **Teacher account**: `{username, password_hash}`. One shared teacher account is fine for MVP; per-teacher accounts are Phase 2.
 
 ### 2.2 Auth (resolves the open question from before)
 
-Simple session-token auth, not a full OAuth stack — matches an offline,
+Simple session-token auth, not a full OAuth stack matches an offline,
 single-box deployment:
 
-- `POST /auth/login` — `{username, password}` → `{token}`
+- `POST /auth/login` - `{username, password}` → `{token}`
 - `POST /auth/logout`
 - Every dashboard endpoint below requires `Authorization: Bearer <token>`
 - Passwords stored as a hash (e.g. `passlib`/`bcrypt`), never plaintext, even for a single shared account
@@ -55,15 +55,15 @@ single-box deployment:
 | `POST` | `/auth/login` | Get a session token |
 | `POST` | `/auth/logout` | Invalidate a token |
 | `GET` | `/content` | List all indexed chunks (paginated), for the management table |
-| `POST` | `/upload_content` | Already built — now requires auth |
+| `POST` | `/upload_content` | Already built now requires auth |
 | `PUT` | `/content/{id}` | Edit a chunk's text/metadata in place |
 | `DELETE` | `/content/{id}` | Remove a chunk |
 | `POST` | `/content/reindex` | Rebuild embeddings for all chunks (after bulk edits or an embedding-model change) |
 | `GET` | `/analytics/faq?days=7` | Top N most-asked questions/topics in the period |
 | `GET` | `/analytics/usage` | Total questions today/this week, refusal rate, avg latency |
-| `GET` | `/analytics/misconceptions` | *(Phase 2)* clusters of refused/low-confidence questions — candidate curriculum gaps |
+| `GET` | `/analytics/misconceptions` | *(Phase 2)* clusters of refused/low-confidence questions, candidate curriculum gaps |
 
-Real `PUT`/`DELETE` rather than "re-upload with the same id" — cleaner
+Real `PUT`/`DELETE` rather than "re-upload with the same id" cleaner
 semantics for a dashboard a non-technical teacher is directly using.
 
 ### 2.4 Question logging
@@ -87,7 +87,7 @@ are entirely Momen's to own.
 ### 3.1 Screens
 
 - **Login**
-- **Content management** : table of chunks by chapter/section, search/filter, inline edit, delete, add-new form. Bulk upload from raw PDF/Word with auto-chunking is Phase 2 — it's a real NLP task in its own right, not a small addition.
+- **Content management** : table of chunks by chapter/section, search/filter, inline edit, delete, add-new form. Bulk upload from raw PDF/Word with auto-chunking is Phase 2 it's a real NLP task in its own right, not a small addition.
 - **FAQ / analytics** : most-asked questions this week, refusal rate, a simple chart of question volume over time
 - **Settings** : change password; connected-student count is a nice Phase 2 addition, not required for MVP
 
