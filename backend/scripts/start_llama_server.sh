@@ -3,7 +3,7 @@
 # The backend's config.KARNAK_URL points here. Run build_llama.sh first.
 set -euo pipefail
 
-MODEL_PATH="${MOFID_MODEL_PATH:-./models/Karnak.Q3_K_M.gguf}"
+MODEL_PATH="${MOFID_MODEL_PATH:-./models/Karnak-6B-v1.0.Q3_K_M.gguf}"
 PORT="${MOFID_LLAMA_PORT:-8081}"
 
 ./llama.cpp/build/bin/llama-server \
