@@ -12,7 +12,7 @@
 
 | # | Workstream | Owner | Why this owner |
 |---|---|---|---|
-| A | LLM serving (Karnak-40B quantized via llama.cpp) | **Mostafa** | Backend/AI role, model + inference layer |
+| A | LLM serving (Karnak-6B quantized via llama.cpp) | **Mostafa** | Backend/AI role, model + inference layer |
 | B | RAG pipeline (chunking, embeddings, retrieval, citation logic) | **Mostafa** | Core AI grounding logic the heart of the "prove it's real" claim |
 | C | Backend API (orchestrates LLM + RAG, serves the frontend, "not in curriculum" fallback) | **Mostafa** | Sits directly on top of A + B |
 | D | Curriculum digitization (textbook chapters → clean text, chunked, tagged) | **Nayra** | Content prep, independent of code stack |
@@ -28,7 +28,7 @@
 ### Mostafa (45%)
 **Owns the AI core: model serving, RAG, and the API that ties everything together.**
 
-1. Stand up llama.cpp locally, get quantized Karnak-40B running with acceptable latency on the target hardware (GPU + CPU-only quantization fallback tested).
+1. Stand up llama.cpp locally, get quantized Karnak-6B running with acceptable latency on the target hardware (GPU + CPU-only quantization fallback tested).
 2. Design the RAG pipeline: chunking strategy for textbook content, embedding model choice, local vector store (SQLite-Vec or ChromaDB).
 3. Build retrieval logic: top-k chunk retrieval, relevance thresholding, source citation formatting (chapter/page reference returned with every answer).
 4. Implement the "not in curriculum" fallback detect low-relevance retrieval and respond honestly instead of hallucinating.
@@ -82,7 +82,7 @@ contract exists for the other workstreams to build against as early as possible.
 
 Two interfaces must be agreed before parallel work begins:
 
-- **Content schema** — the chunk format produced by workstream D and consumed by
-  workstream B. Defined in `content/README.md`.
-- **API contract** — the request and response shapes between workstream C and the
-  student app. Defined in `webapp/API_CONTRACT.md`.
+- **Content schema and API contract** - both defined in `API_CONTRACT.md` at
+  the repo root: the chunk format produced by workstream D and consumed by
+  workstream B (also matches `content/physics_grade12.json`), and the
+  request/response shapes between workstream C and the student app.
