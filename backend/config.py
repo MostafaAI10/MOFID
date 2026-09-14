@@ -15,22 +15,15 @@ API_PORT = int(os.environ.get("MOFID_API_PORT", 8082))
 CHROMA_HOST = os.environ.get("MOFID_CHROMA_HOST", "localhost")
 
 # --- Paths ---
-MODEL_PATH = os.environ.get("MOFID_MODEL_PATH", "./models/Karnak.Q3_K_M.gguf")
+MODEL_PATH = os.environ.get("MOFID_MODEL_PATH", "./models/Karnak-6B-v1.0.Q3_K_M.gguf")
 CHROMA_DB_PATH = os.environ.get("MOFID_CHROMA_PATH", "./mofid_vectordb")
 CONTENT_PATH = os.environ.get("MOFID_CONTENT_PATH", "./content/physics_grade12.json")
 
 # --- RAG ---
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-base"
 COLLECTION_NAME = "physics_g12"
+RELEVANCE_THRESHOLD = float(os.environ.get("MOFID_RELEVANCE_THRESHOLD", 0.42))
 TOP_K = int(os.environ.get("MOFID_TOP_K", 2))
-
-# The XLING pair applies when the question is not in the corpus language.
-RELEVANCE_THRESHOLD = float(os.environ.get("MOFID_RELEVANCE_THRESHOLD", 0.48))
-COVERAGE_THRESHOLD = float(os.environ.get("MOFID_COVERAGE_THRESHOLD", 0.30))
-RELEVANCE_THRESHOLD_XLING = float(os.environ.get("MOFID_RELEVANCE_XLING", 0.55))
-COVERAGE_THRESHOLD_XLING = float(os.environ.get("MOFID_COVERAGE_XLING", 0.10))
-
-MAX_ANSWER_TOKENS = int(os.environ.get("MOFID_MAX_ANSWER_TOKENS", 400))
 
 KARNAK_URL = f"http://localhost:{LLAMA_SERVER_PORT}/v1/chat/completions"
 
