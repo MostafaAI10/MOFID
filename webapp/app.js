@@ -479,12 +479,19 @@
   }
 
   function gradesAvailable() {
-    return [...new Set(courses.map((c) => c.grade))]
-      .sort((a, b) => Number(a) - Number(b));
+    return [...new Set(courses.map((c) => c.grade || "غير محدد"))]
+      .sort((a, b) => {
+        const numA = Number(a);
+        const numB = Number(b);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        if (!isNaN(numA)) return -1;
+        if (!isNaN(numB)) return 1;
+        return String(a).localeCompare(String(b));
+      });
   }
 
   function subjectsFor(grade) {
-    return courses.filter((c) => !grade || c.grade === grade);
+    return courses.filter((c) => !grade || (c.grade || "غير محدد") === grade);
   }
 
   function makeCard(opts) {
@@ -539,9 +546,10 @@
       el.hero.querySelector("p").textContent = s.askGrade;
       gradesAvailable().forEach((g, i) => {
         const subjects = subjectsFor(g);
+        const gradeTitle = s.grades[g] || (g === "غير محدد" ? (lang === "ar" ? "مراجع عامة / مضافة" : "General / Extra") : (lang === "ar" ? `الصف ${g}` : `Grade ${g}`));
         el.cards.append(makeCard({
           i,
-          title: s.grades[g] || g,
+          title: gradeTitle,
           meta: subjects.length === 1 ? subjects[0].subject
             : s.subjectsLabel(subjects.length),
           on: scope.grade === g,
@@ -552,7 +560,8 @@
     }
 
     el.pickBack.hidden = false;
-    el.pickBackText.textContent = s.grades[scope.grade] || scope.grade;
+    const currentGradeTitle = s.grades[scope.grade] || (scope.grade === "غير محدد" ? (lang === "ar" ? "مراجع عامة" : "General") : (lang === "ar" ? `الصف ${scope.grade}` : `Grade ${scope.grade}`));
+    el.pickBackText.textContent = currentGradeTitle;
     el.hero.querySelector("h2").textContent = s.askSubject;
     el.hero.querySelector("p").textContent = "";
     subjectsFor(scope.grade).forEach((c, i) => {
@@ -566,6 +575,7 @@
       }));
     });
   }
+
 
   function greeting() {
     const h = new Date().getHours();
@@ -797,7 +807,7 @@
   // --- init ---
   async function loadChips() {
     try {
-      const all = await MofidAPI.suggestions(lang);
+      const all = await MofidAPI.suggestions(lang, scope);
       const picks = all.sort(() => Math.random() - 0.5).slice(0, 4);
       el.chips.replaceChildren();
       picks.forEach((q, i) => {

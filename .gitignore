@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 mofid_vectordb/
 models/
+.venv/
+llama.cpp/
+backend/llama.cpp/
+dashboard/node_modules/
+dashboard/dist/

@@ -58,28 +58,40 @@ def retrieve_context(
     )
 
     query_embedding = embedder.encode(["query: " + query]).tolist()
+    
+    scope_clause = _scope_filter(subject, grade)
     results = collection.query(
         query_embeddings=query_embedding,
         n_results=top_k,
-        where=_scope_filter(subject, grade),
+        where=scope_clause,
+    ) if scope_clause else collection.query(
+        query_embeddings=query_embedding,
+        n_results=top_k,
     )
 
-    if not results["documents"][0]:
+    if not results or not results.get("documents") or not results["documents"][0]:
         return None, None
 
-    chunks, metadatas = [], []
+    chunks, metadatas, distances = [], [], []
     for doc, meta, dist in zip(
         results["documents"][0], results["metadatas"][0], results["distances"][0]
     ):
         if dist <= relevance_threshold:
             chunks.append(doc)
             metadatas.append(meta)
+            distances.append(dist)
 
-    # Coverage is read off the best match only; a second chunk that is close
-    # enough is supporting context.
-    if not chunks or textnorm.coverage(query, chunks[0]) < coverage_threshold:
+    if not chunks:
         return None, None
+
+    # Coverage is checked on the best match
+    best_dist = distances[0]
+    if best_dist > 0.40:
+        if textnorm.coverage(query, chunks[0]) < coverage_threshold:
+            return None, None
+
     return chunks, metadatas
+
 
 
 def index_chunks(chunks: list[dict]) -> int:
@@ -101,3 +113,98 @@ def index_chunks(chunks: list[dict]) -> int:
         metadatas=[{k: v for k, v in c.items() if k != "text"} for c in chunks],
     )
     return collection.count()
+
+
+def chunks_in_document(source_doc: str) -> list[dict]:
+    """Every indexed chunk that belongs to one uploaded document, ordered by
+    id so the chunk order matches the source order."""
+    if source_doc == "core_physics_g12":
+        result = collection.get(
+            where={"subject": "الفيزياء"}, include=["documents", "metadatas"]
+        )
+    else:
+        result = collection.get(
+            where={"source_doc": source_doc}, include=["documents", "metadatas"]
+        )
+    chunks = [
+        {"id": chunk_id, "text": text, **meta}
+        for chunk_id, text, meta in zip(
+            result.get("ids") or [],
+            result.get("documents") or [],
+            result.get("metadatas") or [],
+        )
+    ]
+    return sorted(chunks, key=lambda c: c["id"])
+
+
+def delete_document(source_doc: str) -> int:
+    """Remove a document's chunks from the collection. Returns how many were
+    removed."""
+    if source_doc == "core_physics_g12":
+        return 0
+    result = collection.get(where={"source_doc": source_doc}, include=[], limit=5000)
+    ids = result.get("ids") or []
+    if ids:
+        collection.delete(ids=ids)
+    return len(ids)
+
+
+def update_document_metadata(
+    source_doc: str,
+    *,
+    subject: str | None = None,
+    grade: str | None = None,
+    chapter: str | None = None,
+) -> int:
+    """Update subject/grade/chapter metadata on all chunks of a document in Chroma."""
+    if source_doc == "core_physics_g12":
+        return 0
+    result = collection.get(
+        where={"source_doc": source_doc}, include=["metadatas"], limit=5000
+    )
+    ids = result.get("ids") or []
+    metas = result.get("metadatas") or []
+    if not ids:
+        return 0
+    updated = []
+    for m in metas:
+        entry = dict(m)
+        if subject is not None:
+            entry["subject"] = subject.strip()
+        if grade is not None:
+            entry["grade"] = grade.strip()
+        if chapter is not None:
+            entry["chapter"] = chapter.strip()
+        updated.append(entry)
+    collection.update(ids=ids, metadatas=updated)
+    return len(ids)
+
+
+def search_document(
+    query: str, source_doc: str, top_k: int = 10, subject: str | None = None, grade: str | None = None
+):
+    """Semantic search confined to one uploaded document.
+
+    Unlike retrieve_context this does not gate on curriculum relevance - the
+    teacher is browsing inside the document, not asking the tutor - so every
+    match is returned with its distance, closest first.
+
+    Returns a list of {id, text, chapter, section, distance, ...} dicts.
+    """
+    query_embedding = embedder.encode(["query: " + query]).tolist()
+    scoped = _scope_filter(subject, grade)
+    where = {"subject": "الفيزياء"} if source_doc == "core_physics_g12" else {"source_doc": source_doc}
+    combined = {"$and": [where, scoped]} if scoped and where else (scoped or where)
+    results = collection.query(
+        query_embeddings=query_embedding,
+        n_results=top_k,
+        where=combined,
+    )
+    ids = results.get("ids") or [[]]
+    docs = results.get("documents") or [[]]
+    metas = results.get("metadatas") or [[]]
+    dists = results.get("distances") or [[]]
+    hits = []
+    for chunk_id, text, meta, dist in zip(ids[0], docs[0], metas[0], dists[0]):
+        hits.append({"id": chunk_id, "text": text, "distance": round(dist, 4), **meta})
+    return hits

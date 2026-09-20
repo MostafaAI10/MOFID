@@ -1,5 +1,5 @@
 /* Mofid service worker. Bump CACHE whenever a shell file changes. */
-const CACHE = "mofid-v29";
+const CACHE = "mofid-v30";
 
 const SHELL = [
   ".", "index.html", "styles.css", "app.js", "api.js",
@@ -30,6 +30,9 @@ self.addEventListener("fetch", (e) => {
 
   const url = new URL(request.url);
   if (url.origin !== location.origin) return;
+
+  // API endpoints must always hit the network, never the PWA shell cache.
+  if (url.pathname.startsWith("/health") || url.pathname.startsWith("/ask")) return;
 
   e.respondWith(
     caches.match(request).then((hit) => {
