@@ -36,7 +36,7 @@ if not "%MOFID_MODEL_PATH%"=="" (
   if not exist "%MOFID_MODEL_PATH%" (
     set "HAS_LLM=0"
   )
-) else if not exist "%ROOT%models\Karnak.Q3_K_M.gguf" (
+) else if not exist "%ROOT%models\Karnak-6B-v1.0.Q3_K_M.gguf" (
   set "HAS_LLM=0"
 )
 

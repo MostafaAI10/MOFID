@@ -10,7 +10,7 @@ if [[ ! -x "$PYTHON" ]]; then PYTHON="${MOFID_PYTHON:-python3}"; fi
 CHROMA_PORT="${MOFID_CHROMA_PORT:-8001}"
 LLAMA_PORT="${MOFID_LLAMA_PORT:-8081}"
 API_PORT="${MOFID_API_PORT:-8082}"
-MODEL_PATH="${MOFID_MODEL_PATH:-$ROOT/models/Karnak.Q3_K_M.gguf}"
+MODEL_PATH="${MOFID_MODEL_PATH:-$ROOT/models/Karnak-6B-v1.0.Q3_K_M.gguf}"
 LLM_MODE="${MOFID_LLM_MODE:-auto}"
 LOG_DIR="$ROOT/work/logs"
 mkdir -p "$LOG_DIR"

@@ -17,7 +17,7 @@ API_PORT = int(os.environ.get("MOFID_API_PORT", 8082))
 CHROMA_HOST = os.environ.get("MOFID_CHROMA_HOST", "127.0.0.1")
 
 # --- Paths ---
-MODEL_PATH = os.environ.get("MOFID_MODEL_PATH", "./models/Karnak.Q3_K_M.gguf")
+MODEL_PATH = os.environ.get("MOFID_MODEL_PATH", "./models/Karnak-6B-v1.0.Q3_K_M.gguf")
 CHROMA_DB_PATH = os.environ.get("MOFID_CHROMA_PATH", "./mofid_vectordb")
 CONTENT_PATH = os.environ.get("MOFID_CONTENT_PATH", "./content/physics_grade12.json")
 DOCUMENTS_DIR = os.environ.get("MOFID_DOCUMENTS_DIR", "./work/documents")
@@ -37,6 +37,10 @@ COVERAGE_THRESHOLD_XLING = float(os.environ.get("MOFID_COVERAGE_XLING", 0.10))
 
 MAX_ANSWER_TOKENS = int(os.environ.get("MOFID_MAX_ANSWER_TOKENS", 200))
 LLM_MODE = os.environ.get("MOFID_LLM_MODE", "live").lower()
+
+
+LLM_TEMPERATURE = float(os.environ.get("MOFID_LLM_TEMPERATURE", 0.2))
+LLM_SEED = int(os.environ.get("MOFID_LLM_SEED", 42))
 
 KARNAK_URL = f"http://localhost:{LLAMA_SERVER_PORT}/v1/chat/completions"
 

@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from backend import config, documents as doc_store, faq, teacher_store
+from backend import config, documents as doc_store, faq, teacher_store, textnorm
 from backend.rag import (
     chunks_in_document,
     collection,
@@ -313,6 +313,8 @@ def ask(req: AskRequest):
                     {"role": "user", "content": req.question},
                 ],
                 "max_tokens": req.max_tokens,
+                "temperature": config.LLM_TEMPERATURE,
+                "seed": config.LLM_SEED,
             },
             timeout=200,
         )
@@ -322,16 +324,8 @@ def ask(req: AskRequest):
 
     raw_answer = r.json()["choices"][0]["message"]["content"].strip()
 
-    # Check if the model answered with a refusal or indicated the question is outside the reference content
-    refusal_cues = [
-        config.REFUSAL_MESSAGE,
-        "غير موجود في المنهج",
-        "لا تتوفر معلومات كافية",
-        "لا يحتوي النص",
-        "المحتوى المرجعي لا يذكر",
-        "النص المقدم يتناول",
-    ]
-    if any(cue in raw_answer for cue in refusal_cues):
+    
+    if textnorm.normalise(raw_answer) == textnorm.normalise(config.REFUSAL_MESSAGE):
         resp = AskResponse(
             answer=config.REFUSAL_MESSAGE,
             in_curriculum=False,
