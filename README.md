@@ -8,6 +8,8 @@
 [![Architecture diagram of mostafaai10/mofid](https://gitdiagram.com/mostafaai10/mofid/diagram.png)](https://gitdiagram.com/mostafaai10/mofid?utm_source=readme&utm_medium=picture)
 
 [![Architecture diagram](https://gitdiagram.com/diagram-badge.svg)](https://gitdiagram.com/mostafaai10/mofid?utm_source=readme&utm_medium=badge)
+
+![image alt](https://github.com/MostafaAI10/Correspa-AI/blob/b266dd8265dd56fd6e6c355125fbc2cb6e41114b/Banner.png)
 ---
 
 ## 1. Workstreams and Ownership
