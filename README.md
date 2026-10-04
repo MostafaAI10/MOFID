@@ -5,7 +5,9 @@
 **Scope:** One subject, one grade level, text-only, single laptop/desktop with one GPU.
 
 **Team split:** Mostafa 45% · Nayra 27.5% · Momen 27.5%
+[![Architecture diagram of mostafaai10/mofid](https://gitdiagram.com/mostafaai10/mofid/diagram.png)](https://gitdiagram.com/mostafaai10/mofid?utm_source=readme&utm_medium=picture)
 
+[![Architecture diagram](https://gitdiagram.com/diagram-badge.svg)](https://gitdiagram.com/mostafaai10/mofid?utm_source=readme&utm_medium=badge)
 ---
 
 ## 1. Workstreams and Ownership
